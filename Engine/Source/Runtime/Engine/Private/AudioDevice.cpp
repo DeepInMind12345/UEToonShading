@@ -4067,6 +4067,22 @@ void FAudioDevice::Update(bool bGameTicking)
 		}
 	}
 
+#if ENABLE_AUDIO_DEBUG
+	for (FActiveSound* ActiveSound : ActiveSounds)
+	{
+		if (!ActiveSound)
+		{
+			continue;
+		}
+		
+		if (UWorld* World = ActiveSound->GetWorld())
+		{
+			FAudioDebugger::DrawDebugInfo(*World, Listeners, ListenerAttenuationOverride, bUseListenerAttenuationOverride);
+			break;
+		}
+	}
+#endif // ENABLE_AUDIO_DEBUG
+
 	if (bHasActivatedReverb)
 	{
 		if (HighestPriorityActivatedReverb.Priority > AudioVolumePriority || bUsingDefaultReverb)
@@ -4846,6 +4862,11 @@ void FAudioDevice::GetMaxDistanceAndFocusFactor(USoundBase* Sound, const UWorld*
 		SoundTransform.SetTranslation(Location);
 
 		OutMaxDistance = AttenuationSettingsToApply->GetMaxDimension();
+		if (AttenuationSettingsToApply->AttenuationShape == EAttenuationShape::Box)
+		{
+			static const float Sqrt2 = 1.4142135f;
+			OutMaxDistance *= Sqrt2;
+		}
 
 		if (AttenuationSettingsToApply->bSpatialize && AttenuationSettingsToApply->bEnableListenerFocus)
 		{
