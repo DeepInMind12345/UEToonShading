@@ -606,6 +606,7 @@ bool FSlateUser::SynthesizeCursorMoveIfNeeded()
 		FSlateApplication& SlateApp = FSlateApplication::Get();
 		
 		const bool bHasHardwareCursor = SlateApp.GetPlatformCursor() == Cursor;
+		const TSet<FKey> EmptySet;
 		FPointerEvent SyntheticCursorMoveEvent(
 			GetUserIndex(),
 			FSlateApplication::CursorPointerIndex,
