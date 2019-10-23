@@ -529,7 +529,7 @@ void UBodySetup::FinishCreatingPhysicsMeshes_PhysX(const TArray<PxConvexMesh*>& 
 {
 	ClearPhysicsMeshes();
 
-	FPhysxSharedData::Get().LockAccess();
+	FPhysxSharedData::LockAccess();
 
 	const FString FullName = GetFullName();
 	if (GetCollisionTraceFlag() != CTF_UseComplexAsSimple)
@@ -570,7 +570,7 @@ void UBodySetup::FinishCreatingPhysicsMeshes_PhysX(const TArray<PxConvexMesh*>& 
 		}
 	}
 
-	FPhysxSharedData::Get().UnlockAccess();
+	FPhysxSharedData::UnlockAccess();
 
 	// Clear the cooked data
 	if (!GIsEditor && !bSharedCookedData)
@@ -732,7 +732,7 @@ void UBodySetup::ClearPhysicsMeshes()
 {
 #if WITH_PHYSX && PHYSICS_INTERFACE_PHYSX
 
-	FPhysxSharedData::Get().LockAccess();
+	FPhysxSharedData::LockAccess();
 
 	for(int32 i=0; i<AggGeom.ConvexElems.Num(); i++)
 	{
@@ -762,7 +762,7 @@ void UBodySetup::ClearPhysicsMeshes()
 		TriMeshes[ElementIndex] = NULL;
 	}
 
-	FPhysxSharedData::Get().UnlockAccess();
+	FPhysxSharedData::UnlockAccess();
 
 	TriMeshes.Empty();
 
