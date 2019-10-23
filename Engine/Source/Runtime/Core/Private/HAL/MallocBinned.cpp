@@ -477,6 +477,7 @@ struct FMallocBinned::Private
 		{
 			InitializeHashBuckets(Allocator);
 		}
+		checkSlow(Allocator.HashBuckets);
 
 		UPTRINT Key       = Ptr >> Allocator.HashKeyShift;
 		UPTRINT Hash      = Key & (Allocator.MaxHashBuckets - 1);
