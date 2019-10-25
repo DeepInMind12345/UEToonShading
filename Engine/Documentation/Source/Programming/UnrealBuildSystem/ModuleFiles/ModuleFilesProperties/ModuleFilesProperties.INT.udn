@@ -27,8 +27,6 @@ $ bEnableExceptions (Boolean): Enable exception handling
 
 $ bEnableObjCExceptions (Boolean): Enable objective C exception handling
 
-$ bEnableShadowVariableWarnings (Boolean): Enable warnings for shadowed variables
-
 $ bEnableUndefinedIdentifierWarnings (Boolean): Enable warnings for using undefined identifiers in #if expressions
 
 $ MinSourceFilesForUnityBuildOverride (Int32): The number of source files in this module before unity build will be activated for that module.  If set to anything besides -1, will override the default setting which is controlled by MinGameModuleSourceFilesForUnityBuild

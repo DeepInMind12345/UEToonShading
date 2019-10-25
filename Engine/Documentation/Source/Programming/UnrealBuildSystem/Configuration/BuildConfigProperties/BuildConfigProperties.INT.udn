@@ -66,8 +66,6 @@ $ bAdaptiveUnityEnablesEditAndContinue : Creates a dedicated PCH for each source
 
 $ MinGameModuleSourceFilesForUnityBuild : The number of source files in a game module before unity build will be activated for that module.  This allows small game modules to have faster iterative compile times for single files, at the expense of slower full rebuild times.  This setting can be overridden by the bFasterWithoutUnity option in a module's Build.cs file.
 
-$ bShadowVariableErrors : Forces shadow variable warnings to be treated as errors on platforms that support it.
-
 $ bUndefinedIdentifierErrors : Forces the use of undefined identifiers in conditional expressions to be treated as errors.
 
 $ bUseFastMonoCalls : New Monolithic Graphics drivers have optional "fast calls" replacing various D3d functions
