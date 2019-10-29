@@ -7,19 +7,18 @@
 
 #include "Audio.h"
 #include "CoreMinimal.h"
-#include "IAudioExtensionPlugin.h"
-#include "SoundConcurrency.h"
-#include "SoundSourceBusSend.h"
-#include "SoundSubmixSend.h"
 #include "UObject/Object.h"
 #include "UObject/ObjectMacros.h"
+#include "SoundConcurrency.h"
+#include "SoundSourceBusSend.h"
+#include "SoundSubmix.h"
+#include "IAudioExtensionPlugin.h"
 
 #include "SoundBase.generated.h"
 
 
 class USoundEffectSourcePreset;
 class USoundSourceBus;
-class USoundSubmix;
 class USoundEffectSourcePresetChain;
 
 struct FActiveSound;

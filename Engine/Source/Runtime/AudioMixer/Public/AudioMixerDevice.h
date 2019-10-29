@@ -6,11 +6,7 @@
 #include "AudioMixerSourceManager.h"
 #include "AudioDevice.h"
 
-
-// Forward Declarations
-class FOnSubmixEnvelopeBP;
 class IAudioMixerPlatformInterface;
-
 
 namespace Audio
 {
