@@ -529,7 +529,7 @@ void FMobileSceneRenderer::Render(FRHICommandListImmediate& RHICmdList)
 
 	FRHITexture* FoveationTexture = nullptr;
 	
-	if (SceneContext.IsFoveationTextureAllocated())
+	if (SceneContext.IsFoveationTextureAllocated()	&& !View.bIsSceneCapture && !View.bIsReflectionCapture)
 	{
 		FoveationTexture = SceneContext.GetFoveationTexture();
 	}
