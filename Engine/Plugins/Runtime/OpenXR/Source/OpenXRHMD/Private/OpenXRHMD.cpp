@@ -881,8 +881,7 @@ FOpenXRHMD::FOpenXRHMD(const FAutoRegister& AutoRegister, XrInstance InInstance,
 		View.pose = ToXrPose(FTransform::Identity);
 	}
 
-	// The HMD device does not have an action associated with it
-	ensure(ActionSpaces.Emplace(XR_NULL_HANDLE) == HMDDeviceId);
+	ResetActionDevices();
 }
 
 FOpenXRHMD::~FOpenXRHMD()
@@ -1136,6 +1135,14 @@ int32 FOpenXRHMD::AddActionDevice(XrAction Action)
 	}
 
 	return DeviceId;
+}
+
+void FOpenXRHMD::ResetActionDevices()
+{
+	ActionSpaces.Reset();
+
+	// The HMD device does not have an action associated with it
+	ensure(ActionSpaces.Emplace(XR_NULL_HANDLE) == HMDDeviceId);
 }
 
 bool FOpenXRHMD::IsInitialized() const
