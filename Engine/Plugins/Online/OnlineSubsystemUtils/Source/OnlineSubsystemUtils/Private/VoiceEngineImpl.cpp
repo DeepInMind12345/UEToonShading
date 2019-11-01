@@ -21,6 +21,7 @@ namespace NotificationClient
 }
 #endif 
 
+
 FRemoteTalkerDataImpl::FRemoteTalkerDataImpl() :
 	MaxUncompressedDataSize(0),
 	MaxUncompressedDataQueueSize(0),
@@ -556,6 +557,7 @@ uint32 FVoiceEngineImpl::SubmitRemoteVoiceData(const FUniqueNetIdWrapper& Remote
 			QueuedData.bIsActive = false;
 			QueuedData.VoipSynthComponent->OpenPacketStream(InSampleCount, UVOIPStatics::GetNumBufferedPackets(), UVOIPStatics::GetBufferingDelay());
 			QueuedData.bIsEnvelopeBound = false;
+			QueuedData.VoipSynthComponent->ConnectToSplitter(AllRemoteTalkerAudio);
 		}
 	}
 
@@ -784,6 +786,24 @@ bool FVoiceEngineImpl::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar
 	}
 
 	return bWasHandled;
+}
+
+Audio::FPatchOutputStrongPtr FVoiceEngineImpl::GetMicrophoneOutput()
+{
+	 // NOTE: We don't mix down multiple microphones here.
+	if (VoiceCapture.IsValid())
+	{
+		return VoiceCapture->GetMicrophoneAudio(4096 * 2, 1.0f);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+Audio::FPatchOutputStrongPtr FVoiceEngineImpl::GetRemoteTalkerOutput()
+{
+	return AllRemoteTalkerAudio.AddNewOutput(4096 * 2, 1.0f);
 }
 
 int32 FVoiceEngineImpl::GetMaxVoiceRemainderSize()
