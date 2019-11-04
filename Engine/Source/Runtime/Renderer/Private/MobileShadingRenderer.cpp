@@ -392,7 +392,7 @@ void FMobileSceneRenderer::Render(FRHICommandListImmediate& RHICmdList)
 	// See CVarMobileForceDepthResolve use in ConditionalResolveSceneDepth.
 	const bool bForceDepthResolve = CVarMobileForceDepthResolve.GetValueOnRenderThread() == 1;
 	const bool bSeparateTranslucencyActive = IsMobileSeparateTranslucencyActive(View);
-	bool bKeepDepthContent = bForceDepthResolve || (bRenderToSceneColor && (bSeparateTranslucencyActive ||
+	bool bKeepDepthContent = bForceDepthResolve || (bRenderToSceneColor && (bSeparateTranslucencyActive || View.bIsReflectionCapture ||
 		(View.bIsSceneCapture && (ViewFamily.SceneCaptureSource == ESceneCaptureSource::SCS_SceneColorHDR || ViewFamily.SceneCaptureSource == ESceneCaptureSource::SCS_SceneColorSceneDepth))));
 
 	// Whether to submit cmdbuffer with offscreen rendering before doing post-processing
