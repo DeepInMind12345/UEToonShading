@@ -647,6 +647,7 @@ FMetalDynamicRHI::FMetalDynamicRHI(ERHIFeatureLevel::Type RequestedFeatureLevel)
 		GPixelFormats[PF_FloatRGBA			].BlockBytes		= 8;
 		GPixelFormats[PF_FloatR11G11B10		].PlatformFormat	= (uint32)mtlpp::PixelFormat::RGBA16Float;
 		GPixelFormats[PF_FloatR11G11B10		].BlockBytes		= 8;
+		GPixelFormats[PF_FloatR11G11B10		].Supported			= true;
 	}
 	else
 	{
