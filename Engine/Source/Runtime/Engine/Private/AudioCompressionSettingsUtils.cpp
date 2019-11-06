@@ -76,8 +76,6 @@ void CacheCurrentPlatformAudioCookOverrides(FPlatformAudioCookOverrides& OutOver
 {
 #if PLATFORM_ANDROID && !PLATFORM_LUMIN
 	const TCHAR* CategoryName = TEXT("/Script/AndroidRuntimeSettings.AndroidRuntimeSettings");
-#elif PLATFORM_MAC
-	const TCHAR* CategoryName = TEXT("/Script/MacTargetPlatform.MacTargetSettings");
 #elif PLATFORM_IOS
 	const TCHAR* CategoryName = TEXT("/Script/IOSRuntimeSettings.IOSRuntimeSettings");
 #elif PLATFORM_SWITCH
@@ -105,6 +103,10 @@ void CacheCurrentPlatformAudioCookOverrides(FPlatformAudioCookOverrides& OutOver
 	GConfig->GetFloat(CategoryName, TEXT("AutoStreamingThreshold"), OutOverrides.AutoStreamingThreshold, GEngineIni);
 
 	GConfig->GetBool(CategoryName, TEXT("bUseAudioStreamCaching"), OutOverrides.bUseStreamCaching, GEngineIni);
+
+	int32 RetrievedChunkSizeKB = 256;
+	GConfig->GetInt(CategoryName, TEXT("ChunkSizeKB"), RetrievedChunkSizeKB, GEngineIni);
+	OutOverrides.StreamChunkSizeKB = RetrievedChunkSizeKB;
 
 	/** Memory Load On Demand Settings */
 	if (OutOverrides.bUseStreamCaching)
@@ -209,7 +211,16 @@ const FAudioStreamCachingSettings& FPlatformCompressionUtilities::GetStreamCachi
 FCachedAudioStreamingManagerParams FPlatformCompressionUtilities::BuildCachedStreamingManagerParams()
 {
 	const FAudioStreamCachingSettings& CacheSettings = GetStreamCachingSettingsForCurrentPlatform();
-	int32 MaxChunkSize = GetMaxChunkSizeForCookOverrides(GetCookOverridesForCurrentPlatform());
+
+	int32 MaxChunkSize = 256 * 1024;
+	const FPlatformAudioCookOverrides* CookOverrides = GetCookOverridesForCurrentPlatform();
+
+	if (CookOverrides && (CookOverrides->StreamChunkSizeKB != 0))
+	{
+		MaxChunkSize = FMath::Max(CookOverrides->StreamChunkSizeKB * 1024, 1024);
+	}
+
+	MaxChunkSize = GetMaxChunkSizeForCookOverrides(GetCookOverridesForCurrentPlatform(), MaxChunkSize / 1024);
 
 	// Our number of elements is tweakable based on the minimum cache usage we want to support.
 	const float MinimumCacheUsage = FMath::Clamp(MinimumCacheUsageCvar, 0.0f, 0.95f);
@@ -230,7 +241,7 @@ FCachedAudioStreamingManagerParams FPlatformCompressionUtilities::BuildCachedStr
 	return Params;
 }
 
-uint32 FPlatformCompressionUtilities::GetMaxChunkSizeForCookOverrides(const FPlatformAudioCookOverrides* InCompressionOverrides)
+uint32 FPlatformCompressionUtilities::GetMaxChunkSizeForCookOverrides(const FPlatformAudioCookOverrides* InCompressionOverrides, int32 DefaultMaxChunkSizeKB)
 {
 	check(InCompressionOverrides);
 
@@ -238,7 +249,6 @@ uint32 FPlatformCompressionUtilities::GetMaxChunkSizeForCookOverrides(const FPla
 	// If the game runs with higher than 32 voices, that means we will potentially have a larger cache than what was set in the target settings.
 	// In that case we log a warning on application launch.
 	const int32 MinimumNumChunks = 32;
-	const int32 DefaultMaxChunkSizeKB = 256;
 	
 	int32 CacheSizeKB = InCompressionOverrides->StreamCachingSettings.CacheSizeKB;
 	
