@@ -595,6 +595,8 @@ class FNiagaraSystemColorParameterTrackEditor : public FNiagaraSystemParameterTr
 
 void FNiagaraEditorModule::StartupModule()
 {
+	bThumbnailRenderersRegistered = false;
+
 	FHlslNiagaraTranslator::Init();
 	MenuExtensibilityManager = MakeShareable(new FExtensibilityManager);
 	ToolBarExtensibilityManager = MakeShareable(new FExtensibilityManager);
@@ -820,11 +822,6 @@ void FNiagaraEditorModule::StartupModule()
 		TEXT("Dumps data relevant to generating the compile id for an asset."),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&DumpCompileIdDataForAsset));
 
-	if (GIsEditor)
-	{
-		UThumbnailManager::Get().RegisterCustomRenderer(UNiagaraEmitter::StaticClass(), UNiagaraEmitterThumbnailRenderer::StaticClass());
-		UThumbnailManager::Get().RegisterCustomRenderer(UNiagaraSystem::StaticClass(), UNiagaraSystemThumbnailRenderer::StaticClass());
-	}
 }
 
 
@@ -925,16 +922,22 @@ void FNiagaraEditorModule::ShutdownModule()
 		DumpCompileIdDataForAssetCommand = nullptr;
 	}
 
-	if (UObjectInitialized() && GIsEditor)
+	if (UObjectInitialized() && GIsEditor && bThumbnailRenderersRegistered)
 	{
 		UThumbnailManager::Get().UnregisterCustomRenderer(UNiagaraEmitter::StaticClass());
 		UThumbnailManager::Get().UnregisterCustomRenderer(UNiagaraSystem::StaticClass());
 	}
 }
 
-
 void FNiagaraEditorModule::OnPostEngineInit()
 {
+	if (GIsEditor)
+	{
+		UThumbnailManager::Get().RegisterCustomRenderer(UNiagaraEmitter::StaticClass(), UNiagaraEmitterThumbnailRenderer::StaticClass());
+		UThumbnailManager::Get().RegisterCustomRenderer(UNiagaraSystem::StaticClass(), UNiagaraSystemThumbnailRenderer::StaticClass());
+		bThumbnailRenderersRegistered = true;
+	}
+
 	// The editor should be valid at this point.. log a warning if not!
 	if (GEditor)
 	{
