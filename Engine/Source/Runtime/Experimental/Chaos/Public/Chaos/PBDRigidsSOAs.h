@@ -27,6 +27,10 @@ public:
 
 		ClusteredParticles = MakeUnique< TPBDRigidClusteredParticles<T, d>>();
 		ClusteredParticles->RemoveParticleBehavior() = ERemoveParticleBehavior::Remove;	//clustered particles maintain relative ordering
+
+		GeometryCollectionDisabledParticles = MakeUnique<TPBDGeometryCollectionParticles<T, d>>();
+		GeometryCollectionParticles = MakeUnique<TPBDGeometryCollectionParticles<T, d>>();
+		
 		UpdateViews();
 	}
 
@@ -52,11 +56,24 @@ public:
 	}
 	TArray<TPBDRigidParticleHandle<T, d>*> CreateDynamicParticles(int32 NumParticles, const TPBDRigidParticleParameters<T, d>& Params = TPBDRigidParticleParameters<T, d>())
 	{
-		auto Results = CreateParticlesHelper<TPBDRigidParticleHandle<T, d>>(NumParticles, Params.bDisabled ? DynamicDisabledParticles : DynamicParticles, Params);;
+		auto Results = CreateParticlesHelper<TPBDRigidParticleHandle<T, d>>(NumParticles, Params.bDisabled ? DynamicDisabledParticles : DynamicParticles, Params);
 
 		if (!Params.bStartSleeping)
 		{
 			InsertToMapAndArray(Results, ActiveParticlesToIndex, ActiveParticlesArray);
+		}
+		UpdateViews();
+		return Results;
+	}
+	TArray<TPBDGeometryCollectionParticleHandle<T, d>*> CreateGeometryCollectionParticles(int32 NumParticles, const TPBDRigidParticleParameters<T, d>& Params = TPBDRigidParticleParameters<T, d>())
+	{
+		TArray<TPBDGeometryCollectionParticleHandle<T, d>*> Results = CreateParticlesHelper<TPBDGeometryCollectionParticleHandle<T, d>>(
+			NumParticles, Params.bDisabled ? GeometryCollectionDisabledParticles : GeometryCollectionParticles, Params);
+		//TArray<TPBDRigidParticleHandle<T, d>*>& RigidHandles = (TArray<TPBDRigidParticleHandle<T, d>*>*)&Results;//*static_cast<TArray<TPBDRigidParticleHandle<T, d>*>*>(&Results);
+		if (!Params.bStartSleeping)
+		{
+			InsertToMapAndArray(Results, ActiveParticlesToIndex, ActiveParticlesArray);
+			InsertToMapAndArray(Results, ActiveGeometryCollectionToIndex, ActiveGeometryCollectionArray);
 		}
 		UpdateViews();
 		return Results;
@@ -67,13 +84,13 @@ public:
 	{
 		auto NewClustered = CreateParticlesHelper<TPBDRigidClusteredParticleHandle<T, d>>(NumParticles, ClusteredParticles, Params);
 		
-			if (!Params.bDisabled)
-			{
+		if (!Params.bDisabled)
+		{
 			InsertToMapAndArray(NewClustered, NonDisabledClusteredToIndex, NonDisabledClusteredArray);
-			}
+		}
 
-			if (!Params.bStartSleeping)
-			{
+		if (!Params.bStartSleeping)
+		{
 			InsertToMapAndArray(reinterpret_cast<TArray<TPBDRigidParticleHandle<T,d>*>&>(NewClustered), ActiveParticlesToIndex, ActiveParticlesArray);
 			InsertToMapAndArray(NewClustered, ActiveClusteredToIndex, ActiveClusteredArray);
 		}
@@ -216,6 +233,8 @@ public:
 		Ar << DynamicDisabledParticles;
 		ensure(ClusteredParticles->Size() == 0);	//not supported yet
 		//Ar << ClusteredParticles;
+		Ar << GeometryCollectionParticles;
+		Ar << GeometryCollectionDisabledParticles;
 
 		SerializeMapAndArray(Ar, ActiveParticlesToIndex, ActiveParticlesArray);
 		//SerializeMapAndArray(Ar, ActiveClusteredToIndex, ActiveClusteredArray);
@@ -247,6 +266,12 @@ public:
 
 	const TGeometryParticles<T, d>& GetNonDisabledStaticParticles() const { return *StaticParticles; }
 	TGeometryParticles<T, d>& GetNonDisabledStaticParticles() { return *StaticParticles; }
+
+	const TPBDGeometryCollectionParticles<T, d>& GetGeometryCollectionParticles() const { return *GeometryCollectionParticles; }
+	TPBDGeometryCollectionParticles<T, d>& GetGeometryCollectionParticles() { return *GeometryCollectionParticles; }
+
+	const TParticleView<TPBDGeometryCollectionParticles<T, d>>& GetActiveGeometryCollectionParticlesView() const { return ActiveGeometryCollectionParticlesView; }
+	TParticleView<TPBDGeometryCollectionParticles<T, d>>& GetActiveGeometryCollectionParticlesView() { return ActiveGeometryCollectionParticlesView; }
 
 	//TEMP: only needed while clustering code continues to use direct indices
 	const auto& GetActiveClusteredArray() const { return ActiveClusteredArray; }
@@ -283,9 +308,10 @@ private:
 		return ReturnHandles;
 	}
 
-	template <typename TParticle>
-	void InsertToMapAndArray(const TArray<TParticle*>& ParticlesToInsert, TMap<TParticle*, int32>& ParticleToIndex, TArray<TParticle*>& ParticleArray)
+	template <typename TParticle1, typename TParticle2>
+	void InsertToMapAndArray(const TArray<TParticle1*>& ParticlesToInsert, TMap<TParticle2*, int32>& ParticleToIndex, TArray<TParticle2*>& ParticleArray)
 	{
+		// TODO: Compile time check ensuring TParticle2 is derived from TParticle1?
 		int32 NextIdx = ParticleArray.Num();
 		for (auto Particle : ParticlesToInsert)
 		{
@@ -298,11 +324,11 @@ private:
 	static void InsertToMapAndArray(TParticle* Particle, TMap<TParticle*, int32>& ParticleToIndex, TArray<TParticle*>& ParticleArray)
 	{
 		if (ParticleToIndex.Contains(Particle) == false)
-			{
+		{
 			ParticleToIndex.Add(Particle, ParticleArray.Num());
 			ParticleArray.Add(Particle);
-			}
 		}
+	}
 
 	template <typename TParticle>
 	static void RemoveFromMapAndArray(TParticle* Particle, TMap<TParticle*, int32>& ParticleToIndex, TArray<TParticle*>& ParticleArray)
@@ -338,11 +364,11 @@ private:
 	{
 		//build various views. Group SOA types together for better branch prediction
 		{
-			TArray<TSOAView<TGeometryParticles<T, d>>> TmpArray = { StaticParticles.Get(), KinematicParticles.Get(), DynamicParticles.Get(), {&NonDisabledClusteredArray} };
+			TArray<TSOAView<TGeometryParticles<T, d>>> TmpArray = { StaticParticles.Get(), KinematicParticles.Get(), DynamicParticles.Get(), {&NonDisabledClusteredArray}, GeometryCollectionParticles.Get() };
 			NonDisabledView = MakeParticleView(MoveTemp(TmpArray));
 		}
 		{
-			TArray<TSOAView<TPBDRigidParticles<T, d>>> TmpArray = { DynamicParticles.Get(), {&NonDisabledClusteredArray} };
+			TArray<TSOAView<TPBDRigidParticles<T, d>>> TmpArray = { DynamicParticles.Get(), {&NonDisabledClusteredArray}, GeometryCollectionParticles.Get() };
 			NonDisabledDynamicView = MakeParticleView(MoveTemp(TmpArray));
 		}
 		{
@@ -351,12 +377,16 @@ private:
 		}
 		{
 			TArray<TSOAView<TGeometryParticles<T, d>>> TmpArray = { StaticParticles.Get(), StaticDisabledParticles.Get(), KinematicParticles.Get(), KinematicDisabledParticles.Get(),
-				DynamicParticles.Get(), DynamicDisabledParticles.Get(), ClusteredParticles.Get() };
+				DynamicParticles.Get(), DynamicDisabledParticles.Get(), ClusteredParticles.Get(), GeometryCollectionParticles.Get() };
 			AllParticlesView = MakeParticleView(MoveTemp(TmpArray));
 		}
 		{
 			TArray<TSOAView<TKinematicGeometryParticles<T, d>>> TmpArray = { KinematicParticles.Get() };
 			ActiveKinematicParticlesView = MakeParticleView(MoveTemp(TmpArray));
+		}
+		{
+			TArray<TSOAView<TPBDGeometryCollectionParticles<T, d>>> TmpArray = { GeometryCollectionParticles.Get()};
+			ActiveGeometryCollectionParticlesView = MakeParticleView(MoveTemp(TmpArray));
 		}
 	}
 
@@ -371,6 +401,11 @@ private:
 	TUniquePtr<TPBDRigidParticles<T, d>> DynamicDisabledParticles;
 
 	TUniquePtr<TPBDRigidClusteredParticles<T, d>> ClusteredParticles;
+
+	TUniquePtr<TPBDGeometryCollectionParticles<T, d>> GeometryCollectionParticles;
+	TUniquePtr<TPBDGeometryCollectionParticles<T, d>> GeometryCollectionDisabledParticles;
+	TMap<TPBDGeometryCollectionParticleHandle<T, d>*, int32> ActiveGeometryCollectionToIndex;
+	TArray<TPBDGeometryCollectionParticleHandle<T, d>*> ActiveGeometryCollectionArray;
 
 	//Utility structures for maintaining an Active particles view
 	TMap<TPBDRigidParticleHandle<T, d>*, int32> ActiveParticlesToIndex;
@@ -388,6 +423,7 @@ private:
 	TParticleView<TPBDRigidParticles<T, d>> ActiveParticlesView;						//all particles that are active
 	TParticleView<TGeometryParticles<T, d>> AllParticlesView;							//all particles
 	TParticleView<TKinematicGeometryParticles<T, d>> ActiveKinematicParticlesView;		//all kinematic particles that are not disabled
+	TParticleView<TPBDGeometryCollectionParticles<T, d>> ActiveGeometryCollectionParticlesView; // all geom collection particles that are not disabled
 
 	//Auxiliary data synced with particle handles
 	TGeometryParticleHandles<T, d> ParticleHandles;

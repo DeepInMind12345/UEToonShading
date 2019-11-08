@@ -42,8 +42,8 @@ class TPBDRigidParticles : public TRigidParticles<T, d>
 		TArrayCollection::AddArray(&MPreW);
 	}
 
-		CHAOS_API virtual ~TPBDRigidParticles()
-		{}
+	CHAOS_API virtual ~TPBDRigidParticles()
+	{}
 
 
 	const TVector<T, d>& P(const int32 index) const { return MP[index]; }
