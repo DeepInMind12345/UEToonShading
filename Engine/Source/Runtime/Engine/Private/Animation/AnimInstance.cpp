@@ -1307,7 +1307,7 @@ void UAnimInstance::TriggerAnimNotifies(float DeltaSeconds)
 	// Send end notification to AnimNotifyState not active anymore.
 	for(const FAnimNotifyEvent& AnimNotifyEvent : ActiveAnimNotifyState)
 	{
-		if (ShouldTriggerAnimNotifyState(AnimNotifyEvent.NotifyStateClass))
+		if (AnimNotifyEvent.NotifyStateClass && ShouldTriggerAnimNotifyState(AnimNotifyEvent.NotifyStateClass))
 		{
 			AnimNotifyEvent.NotifyStateClass->NotifyEnd(SkelMeshComp, Cast<UAnimSequenceBase>(AnimNotifyEvent.NotifyStateClass->GetOuter()));
 		}
