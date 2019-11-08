@@ -1874,9 +1874,6 @@ static void MakeShaderModelPreviewMenu( FMenuBuilder& MenuBuilder )
 		MenuBuilder.AddMenuEntry(FLevelEditorCommands::Get().PreviewPlatformOverride_IOSMetalES31);
 	}
 
-	// HTML5
-	MenuBuilder.AddMenuEntry(FLevelEditorCommands::Get().PreviewPlatformOverride_HTML5);
-
     MenuBuilder.EndSection();
 
 #undef LOCTEXT_NAMESPACE
