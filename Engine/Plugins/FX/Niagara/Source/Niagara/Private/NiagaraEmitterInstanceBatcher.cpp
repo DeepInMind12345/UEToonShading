@@ -29,6 +29,14 @@ DECLARE_GPU_STAT_NAMED(NiagaraGPUSorting, TEXT("Niagara GPU sorting"));
 
 uint32 FNiagaraComputeExecutionContext::TickCounter = 0;
 
+int32 GNiagaraMaxGPUParticleCountPerEmitter = 500000;
+static FAutoConsoleVariableRef CVarNiagaraMaxGPUParticleCountPerEmitter(
+	TEXT("Niagara.MaxGPUParticleCountPerEmitter"),
+	GNiagaraMaxGPUParticleCountPerEmitter,
+	TEXT("If > 0, the maximum number of GPU particles allowed per emitter. (default 500K)\n"),
+	ECVF_Default
+);
+
 int32 GNiagaraAllowTickBeforeRender = 1;
 static FAutoConsoleVariableRef CVarNiagaraAllowTickBeforeRender(
 	TEXT("fx.NiagaraAllowTickBeforeRender"),
@@ -365,7 +373,11 @@ void NiagaraEmitterInstanceBatcher::ResizeBuffersAndGatherResources(FOverlappabl
 
 			//We must assume all particles survive when allocating here. 
 			//If this is not true, the read back in ResolveDatasetWrites will shrink the buffers.
-			const uint32 RequiredInstances = FMath::Max(PrevNumInstances, NewNumInstances);
+			uint32 RequiredInstances = FMath::Max(PrevNumInstances, NewNumInstances);
+			if (GNiagaraMaxGPUParticleCountPerEmitter > 0)
+			{
+				RequiredInstances = FMath::Min(RequiredInstances, (uint32)GNiagaraMaxGPUParticleCountPerEmitter);
+			}
 
 			DestinationData.AllocateGPU(RequiredInstances + 1, GPUInstanceCounterManager, RHICmdList);
 			DestinationData.SetNumInstances(RequiredInstances);
