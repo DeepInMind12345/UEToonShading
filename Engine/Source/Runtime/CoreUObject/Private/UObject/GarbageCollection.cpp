@@ -99,7 +99,7 @@ void FGCCSyncObject::Create()
 		~FSingletonOwner()	{ GGCSingleton = nullptr;	}
 	};
 	static const FSingletonOwner MagicStaticSingleton;
-}
+	}
 
 FGCCSyncObject& FGCCSyncObject::Get()
 {
@@ -1035,7 +1035,8 @@ public:
 		// are part of the array so we don't suffer from cache misses as much as we would if we were to check ObjectFlags.
 		ParallelFor(NumThreads, [&ObjectsToSerializeList, &ClustersToDissolveList, &KeepClusterRefsList, FastKeepFlags, KeepFlags, NumberOfObjectsPerThread, NumThreads, MaxNumberOfObjects](int32 ThreadIndex)
 		{
-			int32 FirstObjectIndex = ThreadIndex * NumberOfObjectsPerThread + GUObjectArray.GetFirstGCIndex();
+			// Temporary clamping GUObjectArray.GetFirstGCIndex() is -1 in some rare circumstances UE-76532, until we find a permanent fix
+			int32 FirstObjectIndex = FMath::Max(ThreadIndex * NumberOfObjectsPerThread + GUObjectArray.GetFirstGCIndex(), 0);
 			int32 NumObjects = (ThreadIndex < (NumThreads - 1)) ? NumberOfObjectsPerThread : (MaxNumberOfObjects - (NumThreads - 1) * NumberOfObjectsPerThread);
 			int32 LastObjectIndex = FMath::Min(GUObjectArray.GetObjectArrayNum() - 1, FirstObjectIndex + NumObjects - 1);
 			int32 ObjectCountDuringMarkPhase = 0;
@@ -1126,10 +1127,10 @@ public:
 				// DissolveClusterAndMarkObjectsAsUnreachable calls already dissolved its cluster
 				if (ObjectItem->HasAnyFlags(EInternalObjectFlags::ClusterRoot))
 				{
-					GUObjectClusters.DissolveClusterAndMarkObjectsAsUnreachable(ObjectItem);
-					GUObjectClusters.SetClustersNeedDissolving();
-				}
+				GUObjectClusters.DissolveClusterAndMarkObjectsAsUnreachable(ObjectItem);
+				GUObjectClusters.SetClustersNeedDissolving();
 			}
+		}
 		}
 
 		{
