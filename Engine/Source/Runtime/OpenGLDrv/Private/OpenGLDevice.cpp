@@ -1864,6 +1864,11 @@ void* FOpenGLDynamicRHI::RHIGetNativeDevice()
 	return PlatformDevice;
 }
 
+void* FOpenGLDynamicRHI::RHIGetNativeInstance()
+{
+	return nullptr;
+}
+
 void FOpenGLDynamicRHI::InvalidateQueries( void )
 {
 	{

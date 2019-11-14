@@ -1081,6 +1081,12 @@ void* FMetalDynamicRHI::RHIGetNativeDevice()
 	return (void*)ImmediateContext.Context->GetDevice().GetPtr();
 }
 
+void* FMetalDynamicRHI::RHIGetNativeInstance()
+{
+	return nullptr;
+}
+
+
 uint16 FMetalDynamicRHI::RHIGetPlatformTextureMaxSampleCount()
 {
 	TArray<EMobileMSAASampleCount::Type> SamplesArray{ EMobileMSAASampleCount::Type::One, EMobileMSAASampleCount::Type::Two, EMobileMSAASampleCount::Type::Four, EMobileMSAASampleCount::Type::Eight };
