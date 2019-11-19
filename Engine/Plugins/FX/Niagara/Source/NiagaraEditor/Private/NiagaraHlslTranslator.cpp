@@ -1351,7 +1351,11 @@ void FHlslNiagaraTranslator::GatherVariableForDataSetAccess(const FNiagaraVariab
 {
 	TArray<FString> Components;
 	UScriptStruct* Struct = Var.GetType().GetScriptStruct();
-	check(Struct);
+	if (Struct == nullptr)
+	{
+		Error(FText::Format(LOCTEXT("GatherVariableForDataSetAccessFailedForInvalidType", "Failed to gather variable for data set access: {0}"), FText::FromName(Var.GetName())), nullptr, nullptr);
+		return;
+	}
 
 	TArray<ENiagaraBaseTypes> Types;
 	GatherComponentsForDataSetAccess(Struct, TEXT(""), false, Components, Types);
