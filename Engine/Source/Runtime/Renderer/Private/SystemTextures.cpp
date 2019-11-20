@@ -620,6 +620,8 @@ void FSystemTextures::ReleaseDynamicRHI()
 	DefaultNormal8Bit.SafeRelease();
 	VolumetricBlackDummy.SafeRelease();
 	MidGreyDummy.SafeRelease();
+	StencilDummy.SafeRelease();
+	StencilDummySRV.SafeRelease();
 
 	GRenderTargetPool.FreeUnusedResources();
 
