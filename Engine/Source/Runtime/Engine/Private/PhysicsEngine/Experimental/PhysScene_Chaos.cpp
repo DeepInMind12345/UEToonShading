@@ -1408,6 +1408,11 @@ void FPhysScene_ChaosInterface::SyncBodies(Chaos::FPhysicsSolver* Solver)
 					}
 				}
 			}
+			else if(ProxyBase->GetType() == EPhysicsProxyType::GeometryCollectionType)
+			{
+				FGeometryCollectionPhysicsProxy* Proxy = static_cast<FGeometryCollectionPhysicsProxy*>(ProxyBase);
+				Proxy->PullFromPhysicsState();
+			}
 		}
 	}
 }
