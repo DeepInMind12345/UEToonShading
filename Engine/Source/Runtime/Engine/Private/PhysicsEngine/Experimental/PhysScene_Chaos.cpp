@@ -537,7 +537,7 @@ void FPhysScene_Chaos::AddObject(UPrimitiveComponent* Component, FFieldSystemPhy
 {
 	AddToComponentMaps(Component, InObject);
 
-	check(false);
+	ensure(false);
 #if 0
 	Chaos::FPhysicsSolver* CurrSceneSolver = GetSolver();
 
