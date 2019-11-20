@@ -1264,7 +1264,7 @@ namespace AutomationTool
 							int Index;
 							if(Macro.ArgumentNameToIndex.TryGetValue(Attribute.Name, out Index))
 							{
-								Arguments[Index] = Attribute.Value;
+								Arguments[Index] = ExpandProperties(Element, Attribute.Value);
 							}
 							else
 							{
