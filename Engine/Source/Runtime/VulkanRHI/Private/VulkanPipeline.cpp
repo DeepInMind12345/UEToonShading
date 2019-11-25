@@ -661,6 +661,8 @@ FVulkanRHIGraphicsPipelineState* FVulkanPipelineStateCacheManager::CreateAndAdd(
 		if (Existing)
 		{
 			PipelineState = *Existing;
+			delete Pipeline;
+			Pipeline = nullptr;
 		}
 		else
 		{
