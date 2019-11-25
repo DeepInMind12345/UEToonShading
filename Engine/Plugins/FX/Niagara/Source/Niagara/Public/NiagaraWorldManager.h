@@ -24,21 +24,6 @@ class UNiagaraParameterCollection;
 class UNiagaraParameterCollectionInstance;
 class UNiagaraComponentPool;
 
-struct FNiagaraDeferredDeletionFence;
-
-struct FNiagaraWorldManagerDeferredDeletionFence
-{
-	FNiagaraDeferredDeletionFence* Fence;
-	FNiagaraWorldManagerDeferredDeletionFence(FNiagaraDeferredDeletionFence* InFence);
-	~FNiagaraWorldManagerDeferredDeletionFence();
-
-	FNiagaraWorldManagerDeferredDeletionFence(FNiagaraWorldManagerDeferredDeletionFence&& Other);
-	FNiagaraWorldManagerDeferredDeletionFence& operator=(FNiagaraWorldManagerDeferredDeletionFence&& Other);
-
-	FNiagaraWorldManagerDeferredDeletionFence(const FNiagaraWorldManagerDeferredDeletionFence& Other) = delete;
-	FNiagaraWorldManagerDeferredDeletionFence& operator=(const FNiagaraWorldManagerDeferredDeletionFence& Other) = delete;
-};
-
 class FNiagaraViewDataMgr : public FRenderResource
 {
 public:
@@ -145,9 +130,7 @@ public:
 
 	// Dump details about what's inside the world manager
 	void DumpDetails(FOutputDevice& Ar);
-
-	//Creates fences for deferred deletion for each world.
-	static void EnqueueDeferredDeletionFences(TArray<FNiagaraDeferredDeletionFence>& OutFence);
+	
 private:
 
 	// Callback function registered with global world delegates to instantiate world manager when a game world is created
@@ -200,9 +183,6 @@ private:
 	{
 		FRenderCommandFence							Fence;
 		TArray<TUniquePtr<FNiagaraSystemInstance>>	Queue;
-
-		/** Fences to signal to other Niagara code when this queue has been cleared. */
-		TArray<FNiagaraWorldManagerDeferredDeletionFence>		DeletionFences;
 	};
 
 	static constexpr int NumDeferredQueues = 3;
