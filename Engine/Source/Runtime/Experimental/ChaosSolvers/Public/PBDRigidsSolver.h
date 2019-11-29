@@ -101,8 +101,8 @@ namespace Chaos
 		// TODO: Set up an interface for registering fields and geometry collections
 		void RegisterObject(FGeometryCollectionPhysicsProxy* InProxy);
 		bool UnregisterObject(FGeometryCollectionPhysicsProxy* InProxy);
-		//void RegisterObject(FFieldSystemPhysicsProxy* InProxy);
-		//int UnregisterObject(FFieldSystemPhysicsProxy* InProxy);
+		void RegisterObject(FFieldSystemPhysicsProxy* InProxy);
+		bool UnregisterObject(FFieldSystemPhysicsProxy* InProxy);
 
 		bool IsSimulating() const;
 
@@ -248,6 +248,7 @@ namespace Chaos
 		FPBDRigidsEvolution* GetEvolution() { return MEvolution.Get(); }
 		FPBDRigidsEvolution* GetEvolution() const { return MEvolution.Get(); }
 
+		FParticlesType& GetParticles() { return Particles; }
 		const FParticlesType& GetParticles() const { return Particles; }
 
 		/**/
@@ -262,6 +263,11 @@ namespace Chaos
 
 		/**/
 		void PostTickDebugDraw() const;
+
+		TArray<FFieldSystemPhysicsProxy*>& GetFieldSystemPhysicsProxies()
+		{
+			return FieldSystemPhysicsProxies;
+		}
 
 	private:
 
@@ -282,7 +288,6 @@ namespace Chaos
 		{
 			((ParticleType*)(Handle->GTGeometryParticle()->Proxy))->BufferPhysicsResults();
 		}
-
 
 		//
 		// Solver Data
