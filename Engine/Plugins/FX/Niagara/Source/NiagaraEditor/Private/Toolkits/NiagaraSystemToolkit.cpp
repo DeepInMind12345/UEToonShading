@@ -1167,7 +1167,7 @@ void FNiagaraSystemToolkit::SaveAsset_Execute()
 		UE_LOG(LogNiagaraEditor, Log, TEXT("Saving and Compiling NiagaraEmitter %s"), *GetEditingObjects()[0]->GetName());
 		UpdateOriginalEmitter();
 	}
-	SystemViewModel->OnPreSave();
+	SystemViewModel->NotifyPreSave();
 	FAssetEditorToolkit::SaveAsset_Execute();
 }
 
@@ -1178,7 +1178,7 @@ void FNiagaraSystemToolkit::SaveAssetAs_Execute()
 		UE_LOG(LogNiagaraEditor, Log, TEXT("Saving and Compiling NiagaraEmitter %s"), *GetEditingObjects()[0]->GetName());
 		UpdateOriginalEmitter();
 	}
-	SystemViewModel->OnPreSave();
+	SystemViewModel->NotifyPreSave();
 	FAssetEditorToolkit::SaveAssetAs_Execute();
 }
 
@@ -1205,7 +1205,7 @@ bool FNiagaraSystemToolkit::OnRequestClose()
 		FNiagaraEditorUtilities::WriteTextFileToDisk(FPaths::ProjectLogDir(), FilenamePart + TEXT(".onClose.txt"), ExportText, true);
 	}
 
-	SystemViewModel->OnPreClose();
+	SystemViewModel->NotifyPreClose();
 
 	if (SystemToolkitMode == ESystemToolkitMode::Emitter)
 	{
