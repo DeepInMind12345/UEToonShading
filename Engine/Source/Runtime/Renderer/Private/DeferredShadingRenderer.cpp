@@ -150,6 +150,15 @@ static TAutoConsoleVariable<int32> CVarForceAllRayTracingEffects(
 	TEXT(" 1: All ray tracing effects enabled"),
 	ECVF_RenderThreadSafe);
 
+static int32 GRayTracingSceneCaptures = 1;
+static FAutoConsoleVariableRef CVarRayTracingSceneCaptures(
+	TEXT("r.RayTracing.SceneCaptures"),
+	GRayTracingSceneCaptures,
+	TEXT("Enable ray tracing in scene captures.\n")
+	TEXT(" 0: off \n")
+	TEXT(" 1: on (default)"),
+	ECVF_RenderThreadSafe);
+
 static int32 GRayTracingExcludeDecals = 0;
 static FAutoConsoleVariableRef CRayTracingExcludeDecals(
 	TEXT("r.RayTracing.ExcludeDecals"),
@@ -689,7 +698,7 @@ bool FDeferredShadingSceneRenderer::GatherRayTracingWorldInstances(FRHICommandLi
 				}
 
 				if ((View.bIsReflectionCapture && !SceneInfo->bIsVisibleInReflectionCaptures)
-					|| View.bIsSceneCapture)
+					|| (View.bIsSceneCapture && GRayTracingSceneCaptures == 0))
 				{
 					continue;
 				}
