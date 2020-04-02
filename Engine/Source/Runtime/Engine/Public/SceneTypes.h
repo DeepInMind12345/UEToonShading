@@ -155,6 +155,9 @@ enum EMaterialProperty
 	MP_SpecularColor UMETA(Hidden),			// used in Lightmass, not exposed to user, derived from: SpecularColor, Metallic, Specular
 	MP_BaseColor UMETA(DisplayName = "Diffuse"),
 	MP_Metallic UMETA(DisplayName = "Metallic"),
+	//MP_RimStrength UMETA(DisplayName = "RimStrength"),
+	//MP_RimSmooth UMETA(DisplayName = "RimSmooth"),
+	//MP_RampTex UMETA(DisplayName = "RampTex"),
 	MP_Specular UMETA(DisplayName = "Specular"),
 	MP_Roughness UMETA(DisplayName = "Roughness "),
 	MP_Normal UMETA(DisplayName = "Normal"),

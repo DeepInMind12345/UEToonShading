@@ -80,7 +80,7 @@ inline bool IsSubsurfaceShadingModel(FMaterialShadingModelField ShadingModel)
 {
 	return ShadingModel.HasShadingModel(MSM_Subsurface) || ShadingModel.HasShadingModel(MSM_PreintegratedSkin) ||
 		ShadingModel.HasShadingModel(MSM_SubsurfaceProfile) || ShadingModel.HasShadingModel(MSM_TwoSidedFoliage) ||
-		ShadingModel.HasShadingModel(MSM_Cloth) || ShadingModel.HasShadingModel(MSM_Eye);
+		ShadingModel.HasShadingModel(MSM_Cloth) || ShadingModel.HasShadingModel(MSM_Eye) || ShadingModel.HasShadingModel(MSM_Toon);
 }
 
 inline bool UseSubsurfaceProfile(FMaterialShadingModelField ShadingModel)

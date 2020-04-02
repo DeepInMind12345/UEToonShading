@@ -971,6 +971,21 @@ FDirectLighting EyeBxDF( FGBufferData GBuffer, half3 N, half3 V, half3 L, float 
 	return Lighting;
 }
 
+
+FDirectLighting ToonBxDF(FGBufferData GBuffer, half3 N, half3 V, half3 L, float Falloff, float NoL, FAreaLight AreaLight, FShadowTerms Shadow)
+{
+	float Range = GBuffer.CustomData.x * 0.5;
+	float3 H = normalize(V + L);
+	float NoH = saturate(dot(N, H));
+	FDirectLighting Lighting = DefaultLitBxDF(GBuffer, N, V, L, Falloff, NoL, AreaLight, Shadow);
+	
+	Lighting.Diffuse = AreaLight.FalloffColor * Falloff * step(0.5f, NoL) * Diffuse_Lambert(GBuffer.DiffuseColor);
+	Lighting.Specular = 0;
+	Lighting.Transmission = 0;
+	return Lighting;
+}
+
+
 FDirectLighting PreintegratedSkinBxDF( FGBufferData GBuffer, half3 N, half3 V, half3 L, float Falloff, float NoL, FAreaLight AreaLight, FShadowTerms Shadow )
 {
 	FDirectLighting Lighting = DefaultLitBxDF( GBuffer, N, V, L, Falloff, NoL, AreaLight, Shadow );
@@ -1007,6 +1022,8 @@ FDirectLighting IntegrateBxDF( FGBufferData GBuffer, half3 N, half3 V, half3 L, 
 			return ClothBxDF( GBuffer, N, V, L, Falloff, NoL, AreaLight, Shadow );
 		case SHADINGMODELID_EYE:
 			return EyeBxDF( GBuffer, N, V, L, Falloff, NoL, AreaLight, Shadow );
+		case SHADINGMODELID_TOON:
+			return ToonBxDF(GBuffer, N, V, L, Falloff, NoL, AreaLight, Shadow);
 		default:
 			return (FDirectLighting)0;
 	}

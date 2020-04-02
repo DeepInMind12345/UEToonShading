@@ -472,6 +472,7 @@ enum EMaterialShadingModel
 	MSM_Hair					UMETA(DisplayName="Hair"),
 	MSM_Cloth					UMETA(DisplayName="Cloth"),
 	MSM_Eye						UMETA(DisplayName="Eye"),
+	MSM_Toon                    UMETA(DisplayName = "Cartoon"),
 	MSM_SingleLayerWater		UMETA(DisplayName="SingleLayerWater"),
 	/** Number of unique shading models. */
 	MSM_NUM						UMETA(Hidden),

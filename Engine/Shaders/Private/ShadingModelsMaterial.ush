@@ -207,4 +207,13 @@ void SetGBufferForShadingModel(
 	#endif
 	}
 #endif
+	
+#if MATERIAL_SHADINGMODEL_TOON
+	else if (ShadingModel == SHADINGMODELID_TOON)
+	{
+		GBuffer.ShadingModelID = SHADINGMODELID_TOON;
+		GBuffer.CustomData.xyzw = float4(SubsurfaceColor, (GetMaterialCustomData0(MaterialParameters)));
+	}
+#endif
+
 }

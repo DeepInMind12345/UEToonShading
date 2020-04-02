@@ -233,6 +233,8 @@ namespace PixelInspector
 			return EMaterialShadingModel::MSM_Cloth;
 		case PIXEL_INSPECTOR_SHADINGMODELID_EYE:
 			return EMaterialShadingModel::MSM_Eye;
+		case PIXEL_INSPECTOR_SHADINGMODELID_TOON:
+			return EMaterialShadingModel::MSM_Toon;
 		case PIXEL_INSPECTOR_SHADINGMODELID_SINGLELAYERWATER:
 			return EMaterialShadingModel::MSM_SingleLayerWater;
 		};

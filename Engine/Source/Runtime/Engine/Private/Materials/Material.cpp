@@ -5160,6 +5160,9 @@ FExpressionInput* UMaterial::GetExpressionInputForProperty(EMaterialProperty InP
 		case MP_OpacityMask:			return &OpacityMask;
 		case MP_BaseColor:				return &BaseColor;
 		case MP_Metallic:				return &Metallic;
+		//case MP_RimStrength:			return &RimStrength;
+		//case MP_RimSmooth:				return &RimSmooth;
+		//case MP_RampTex:				return &RampTex;
 		case MP_Specular:				return &Specular;
 		case MP_Roughness:				return &Roughness;
 		case MP_Normal:					return &Normal;
@@ -5926,6 +5929,11 @@ bool UMaterial::IsTwoSided() const
 	return TwoSided != 0;
 }
 
+bool UMaterial::IsOnlyBackFace() const
+{
+	return OnlyBackFace != 0;
+}
+
 bool UMaterial::IsDitheredLODTransition() const
 {
 	return DitheredLODTransition != 0;
@@ -6179,10 +6187,10 @@ static bool IsPropertyActive_Internal(EMaterialProperty InProperty,
 		Active = (ShadingModels.IsLit() && (!bIsTranslucentBlendMode || !bIsNonDirectionalTranslucencyLightingMode)) || bHasRefraction;
 		break;
 	case MP_SubsurfaceColor:
-		Active = ShadingModels.HasAnyShadingModel({ MSM_Subsurface, MSM_PreintegratedSkin, MSM_TwoSidedFoliage, MSM_Cloth });
+		Active = ShadingModels.HasAnyShadingModel({ MSM_Subsurface, MSM_PreintegratedSkin, MSM_TwoSidedFoliage, MSM_Cloth, MSM_Toon });
 		break;
 	case MP_CustomData0:
-		Active = ShadingModels.HasAnyShadingModel({ MSM_ClearCoat, MSM_Hair, MSM_Cloth, MSM_Eye });
+		Active = ShadingModels.HasAnyShadingModel({ MSM_ClearCoat, MSM_Hair, MSM_Cloth, MSM_Eye, MSM_Toon });
 		break;
 	case MP_CustomData1:
 		Active = ShadingModels.HasAnyShadingModel({ MSM_ClearCoat, MSM_Eye });

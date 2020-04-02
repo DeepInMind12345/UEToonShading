@@ -359,6 +359,15 @@ class ENGINE_VTABLE UMaterial : public UMaterialInterface
 	UPROPERTY()
 	FScalarMaterialInput Metallic;
 
+	//UPROPERTY()
+	//FScalarMaterialInput RimStrength;
+
+	//UPROPERTY()
+	//FScalarMaterialInput RimSmooth;
+
+	//UPROPERTY()
+	//FColorMaterialInput RampTex;
+
 	UPROPERTY()
 	FScalarMaterialInput Specular;
 
@@ -512,6 +521,9 @@ public:
 	/** Indicates that the material should be rendered without backface culling and the normal should be flipped for backfaces. */
 	UPROPERTY(EditAnywhere, Category=Material)
 	uint8 TwoSided : 1;
+
+	UPROPERTY(EditAnywhere, Category=Material)
+	uint8 OnlyBackFace : 1;
 
 	/** Whether meshes rendered with the material should support dithered LOD transitions. */
 	UPROPERTY(EditAnywhere, Category = Material, AdvancedDisplay, meta = (DisplayName = "Dithered LOD Transition"))
@@ -1048,6 +1060,7 @@ public:
 	ENGINE_API virtual FMaterialShadingModelField GetShadingModels() const override;
 	ENGINE_API virtual bool IsShadingModelFromMaterialExpression() const override;
 	ENGINE_API virtual bool IsTwoSided() const override;
+	ENGINE_API virtual bool IsOnlyBackFace() const override;
 	ENGINE_API virtual bool IsDitheredLODTransition() const override;
 	ENGINE_API virtual bool IsTranslucencyWritingCustomDepth() const override;
 	ENGINE_API virtual bool IsTranslucencyWritingVelocity() const override;

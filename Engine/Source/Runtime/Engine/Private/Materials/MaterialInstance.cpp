@@ -1768,6 +1768,11 @@ bool UMaterialInstanceDynamic::IsTwoSided() const
 	return Parent ? Parent->IsTwoSided() : false;
 }
 
+bool UMaterialInstanceDynamic::IsOnlyBackFace() const
+{
+	return Parent ? Parent->IsOnlyBackFace() : false;
+}
+
 bool UMaterialInstanceDynamic::IsDitheredLODTransition() const
 {
 	return Parent ? Parent->IsDitheredLODTransition() : false;

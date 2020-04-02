@@ -192,6 +192,11 @@ private:
 	FText GetBaseColorPinName() const;
 	FText GetOpacityPinName() const;
 	FText GetMetallicPinName() const;
+	FText GetSpecularPinName() const;
+	FText GetRoughnessPinName() const;
+	//FText GetRimStrengthPinName() const;
+	//FText GetRimSmoothPinName() const;
+	//FText GetRampTexPinName() const;
 	FText GetNormalPinName() const;
 	FText GetWorldPositionOffsetPinName() const;
 	FText GetSubsurfacePinName() const;

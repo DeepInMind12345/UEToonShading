@@ -1518,6 +1518,11 @@ ResourcesString = TEXT("");
 				OutEnvironment.SetDefine(TEXT("MATERIAL_SHADINGMODEL_EYE"), TEXT("1"));
 				NumSetMaterials++;
 			}
+			if (ShadingModels.HasShadingModel(MSM_Toon))
+			{
+				OutEnvironment.SetDefine(TEXT("MATERIAL_SHADINGMODEL_TOON"), TEXT("1"));
+				NumSetMaterials++;
+			}
 			if (ShadingModels.HasShadingModel(MSM_SingleLayerWater))
 			{
 				OutEnvironment.SetDefine(TEXT("MATERIAL_SHADINGMODEL_SINGLELAYERWATER"), TEXT("1"));

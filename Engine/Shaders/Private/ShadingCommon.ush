@@ -2,6 +2,8 @@
 
 #pragma once
 
+
+
 // SHADINGMODELID_* occupy the 4 low bits of an 8bit channel and SKIP_* occupy the 4 high bits
 #define SHADINGMODELID_UNLIT				0
 #define SHADINGMODELID_DEFAULT_LIT			1
@@ -13,8 +15,9 @@
 #define SHADINGMODELID_HAIR					7
 #define SHADINGMODELID_CLOTH				8
 #define SHADINGMODELID_EYE					9
-#define SHADINGMODELID_SINGLELAYERWATER		10
-#define SHADINGMODELID_NUM					11
+#define SHADINGMODELID_TOON					10
+#define SHADINGMODELID_SINGLELAYERWATER		11
+#define SHADINGMODELID_NUM					12
 #define SHADINGMODELID_MASK					0xF		// 4 bits reserved for ShadingModelID			
 
 // The flags are defined so that 0 value has no effect!
@@ -63,6 +66,7 @@ float3 GetShadingModelColor(uint ShadingModelID)
 		case SHADINGMODELID_HAIR: return float3(0.6f, 0.1f, 0.5f);
 		case SHADINGMODELID_CLOTH: return float3(0.7f, 1.0f, 1.0f);
 		case SHADINGMODELID_EYE: return float3(0.3f, 1.0f, 1.0f);
+		case SHADINGMODELID_TOON: return float3(0.4f, 0.0f, 0.8f);
 		case SHADINGMODELID_SINGLELAYERWATER: return float3(0.5f, 0.5f, 1.0f);
 		default: return float3(1.0f, 1.0f, 1.0f); // White
 	}

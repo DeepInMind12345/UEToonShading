@@ -4103,6 +4103,9 @@ FSkeletalMeshSceneProxy::FSkeletalMeshSceneProxy(const USkinnedMeshComponent* Co
 #if WITH_EDITORONLY_DATA
 		,	StreamingDistanceMultiplier(FMath::Max(0.0f, Component->StreamingDistanceMultiplier))
 #endif
+		, NeedSecondPass(Component->NeedSecondPass)
+		, TheSecondPassMaterial(Component->SecondPassMaterial)
+
 {
 	check(MeshObject);
 	check(SkeletalMeshRenderData);
@@ -4561,6 +4564,14 @@ void FSkeletalMeshSceneProxy::GetMeshElementsConditionallySelectable(const TArra
 			}
 
 			GetDynamicElementsSection(Views, ViewFamily, VisibilityMap, LODData, LODIndex, SectionIndex, bSectionSelected, SectionElementInfo, bInSelectable, Collector);
+		
+		
+			if (NeedSecondPass && TheSecondPassMaterial.Num() > SectionElementInfo.UseMaterialIndex && TheSecondPassMaterial[SectionElementInfo.UseMaterialIndex])
+			{
+				FSectionElementInfo SecondInfo = FSectionElementInfo(SectionElementInfo);
+				SecondInfo.Material = TheSecondPassMaterial[SectionElementInfo.UseMaterialIndex];
+				GetDynamicElementsSection(Views, ViewFamily, VisibilityMap, LODData, LODIndex, SectionIndex, bSectionSelected, SecondInfo, bInSelectable, Collector);
+			}
 		}
 	}
 
@@ -4744,7 +4755,7 @@ void FSkeletalMeshSceneProxy::GetDynamicElementsSection(const TArray<const FScen
 #endif // WITH_EDITORONLY_DATA
 
 			BatchElement.MinVertexIndex = Section.BaseVertexIndex;
-			Mesh.ReverseCulling = IsLocalToWorldDeterminantNegative();
+			Mesh.ReverseCulling = IsLocalToWorldDeterminantNegative() ? true : SectionElementInfo.Material->IsOnlyBackFace();
 			Mesh.CastShadow = SectionElementInfo.bEnableShadowCasting;
 			Mesh.bCanApplyViewModeOverrides = true;
 			Mesh.bUseWireframeSelectionColoring = bIsSelected;

@@ -30,7 +30,7 @@ class UMaterialExpressionShadingModel : public UMaterialExpression
 	virtual void GetCaption(TArray<FString>& OutCaptions) const override;
 #endif
 public:
-	UPROPERTY(EditAnywhere, Category=ShadingModel,  meta=(ValidEnumValues="MSM_DefaultLit, MSM_Subsurface, MSM_PreintegratedSkin, MSM_ClearCoat, MSM_SubsurfaceProfile, MSM_TwoSidedFoliage, MSM_Hair, MSM_Cloth, MSM_Eye"))
+	UPROPERTY(EditAnywhere, Category=ShadingModel,  meta=(ValidEnumValues="MSM_DefaultLit, MSM_Subsurface, MSM_PreintegratedSkin, MSM_ClearCoat, MSM_SubsurfaceProfile, MSM_TwoSidedFoliage, MSM_Hair, MSM_Cloth, MSM_Eye, MSM_Toon"))
 	TEnumAsByte<enum EMaterialShadingModel> ShadingModel = MSM_DefaultLit;
 	//~ End UMaterialExpression Interface
 };

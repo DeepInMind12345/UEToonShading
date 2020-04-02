@@ -2460,6 +2460,11 @@ void USkinnedMeshComponent::GetUsedMaterials( TArray<UMaterialInterface*>& OutMa
 		}
 #endif
 	}
+
+	if (NeedSecondPass)
+	{
+		OutMaterials.Append(SecondPassMaterial);
+	}
 }
 
 FSkinWeightVertexBuffer* USkinnedMeshComponent::GetSkinWeightBuffer(int32 LODIndex) const

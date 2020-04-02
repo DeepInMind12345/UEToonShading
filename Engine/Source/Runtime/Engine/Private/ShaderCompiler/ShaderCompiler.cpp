@@ -2575,7 +2575,7 @@ void FShaderCompilingManager::FinishCompilation(const TCHAR* MaterialName, const
 	bool bRetry = false;
 	do 
 	{
-		bRetry = HandlePotentialRetryOnError(CompiledShaderMaps);
+		//bRetry = HandlePotentialRetryOnError(CompiledShaderMaps);
 	} 
 	while (bRetry);
 
@@ -2600,7 +2600,7 @@ void FShaderCompilingManager::FinishAllCompilation()
 	bool bRetry = false;
 	do 
 	{
-		bRetry = HandlePotentialRetryOnError(CompiledShaderMaps);
+		//bRetry = HandlePotentialRetryOnError(CompiledShaderMaps);
 	} 
 	while (bRetry);
 
@@ -2673,7 +2673,7 @@ void FShaderCompilingManager::ProcessAsyncResults(bool bLimitExecutionTime, bool
 				bool bRetry = false;
 				do 
 				{
-					bRetry = HandlePotentialRetryOnError(PendingFinalizeShaderMaps);
+					//bRetry = HandlePotentialRetryOnError(PendingFinalizeShaderMaps);
 				} 
 				while (bRetry);
 
@@ -3072,7 +3072,7 @@ void GlobalBeginCompileShader(
 
 		if (!IFileManager::Get().DirectoryExists(*Input.DumpDebugInfoPath))
 		{
-			verifyf(IFileManager::Get().MakeDirectory(*Input.DumpDebugInfoPath, true), TEXT("Failed to create directory for shader debug info '%s'"), *Input.DumpDebugInfoPath);
+			//verifyf(IFileManager::Get().MakeDirectory(*Input.DumpDebugInfoPath, true), TEXT("Failed to create directory for shader debug info '%s'"), *Input.DumpDebugInfoPath);
 		}
 	}
 

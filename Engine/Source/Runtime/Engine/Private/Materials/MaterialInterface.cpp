@@ -440,6 +440,11 @@ bool UMaterialInterface::IsTwoSided() const
 	return false;
 }
 
+bool UMaterialInterface::IsOnlyBackFace() const
+{
+	return false;
+}
+
 bool UMaterialInterface::IsDitheredLODTransition() const
 {
 	return false;

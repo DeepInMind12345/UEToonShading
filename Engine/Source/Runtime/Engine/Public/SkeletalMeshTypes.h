@@ -317,9 +317,13 @@ public:
 	bool bAnySegmentUsesWorldPositionOffset : 1;
 #endif
 
+	bool NeedSecondPass;
+	UPROPERTY()
+	TArray<UMaterialInterface*> TheSecondPassMaterial;
+
 protected:
 	/** data copied for rendering */
-	uint8 bForceWireframe : 1;
+	uint8 bForceWireframe : 1; 
 	uint8 bIsCPUSkinned : 1;
 	uint8 bCanHighlightSelectedSections : 1;
 	uint8 bRenderStatic:1;

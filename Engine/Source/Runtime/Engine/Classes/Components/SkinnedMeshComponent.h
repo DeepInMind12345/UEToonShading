@@ -218,6 +218,14 @@ class ENGINE_API USkinnedMeshComponent : public UMeshComponent
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Mesh")
 	class USkeletalMesh* SkeletalMesh;
 
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	TArray<UMaterialInterface*> SecondPassMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	bool NeedSecondPass = false;
+
 	//
 	// MasterPoseComponent.
 	//
