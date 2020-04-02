@@ -38,9 +38,6 @@ void UMaterialGraph::RebuildGraph()
 		// Initialize the material input list.
 		MaterialInputs.Add( FMaterialInputInfo( GetBaseColorPinName(), MP_BaseColor, LOCTEXT( "BaseColorToolTip", "Defines the overall color of the Material. Each channel is automatically clamped between 0 and 1" ) ) );
 		MaterialInputs.Add( FMaterialInputInfo( GetMetallicPinName(), MP_Metallic, LOCTEXT( "MetallicToolTip", "Controls how \"metal-like\" your surface looks like") ) );
-		//MaterialInputs.Add(FMaterialInputInfo(GetRimStrengthPinName(), MP_RimStrength, LOCTEXT("SpecularToolTip", "Used to scale the current amount of  specularity on non-metallic surfaces and is a value between 0 and 1, default at  0.5")));
-		//MaterialInputs.Add(FMaterialInputInfo(GetRimSmoothPinName(), MP_RimSmooth, LOCTEXT("RoughnessToolTip", "Controls how rough the Material is.  Roughness of 0 (smooth) is a mirror reflection and 1 (rough) is completely matte  or diffuse")));
-		//MaterialInputs.Add(FMaterialInputInfo(GetRampTexPinName(), MP_RampTex, LOCTEXT("RoughnessToolTip", "Controls how rough the Material is.  Roughness of 0 (smooth) is a mirror reflection and 1 (rough) is completely matte  or diffuse")));
 
 		MaterialInputs.Add( FMaterialInputInfo( GetSpecularPinName(), MP_Specular, LOCTEXT("SpecularToolTip", "Used to scale the current amount of specularity on non-metallic surfaces and is a value between 0 and 1, default at 0.5") ) );
 		MaterialInputs.Add( FMaterialInputInfo( GetRoughnessPinName(), MP_Roughness, LOCTEXT( "RoughnessToolTip", "Controls how rough the Material is. Roughness of 0 (smooth) is a mirror reflection and 1 (rough) is completely matte or diffuse" ) ) );
@@ -561,23 +558,6 @@ FText UMaterialGraph::GetRoughnessPinName() const
 	TArray<TKeyValuePair<EMaterialShadingModel, FString>> CustomPinNames({ {MSM_Toon, "SpecularSize"} });
 	return FText::FromString(GetPinNameFromShadingModelField(Material->GetShadingModels(), CustomPinNames, "Roughness"));
 }
-
-
-//FText UMaterialGraph::GetRimStrengthPinName() const
-//{
-//	TArray<TKeyValuePair<EMaterialShadingModel, FString>> CustomPinNames({ {MSM_Hair, "Hair A"} });
-//	return FText::FromString(GetPinNameFromShadingModelField(Material->GetShadingModels(), CustomPinNames, "Rim Strength"));
-//}
-//FText UMaterialGraph::GetRimSmoothPinName() const
-//{
-//	TArray<TKeyValuePair<EMaterialShadingModel, FString>> CustomPinNames({ {MSM_Hair, "Hair B"}});
-//	return FText::FromString(GetPinNameFromShadingModelField(Material->GetShadingModels(), CustomPinNames, "Rim Smooth"));
-//}
-//FText UMaterialGraph::GetRampTexPinName() const
-//{
-//	TArray<TKeyValuePair<EMaterialShadingModel, FString>> CustomPinNames({ {MSM_Hair, "Hair C"} });
-//	return FText::FromString(GetPinNameFromShadingModelField(Material->GetShadingModels(), CustomPinNames, "Ramp Tex"));
-//}
 
 FText UMaterialGraph::GetNormalPinName() const
 {

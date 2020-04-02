@@ -359,15 +359,6 @@ class ENGINE_VTABLE UMaterial : public UMaterialInterface
 	UPROPERTY()
 	FScalarMaterialInput Metallic;
 
-	//UPROPERTY()
-	//FScalarMaterialInput RimStrength;
-
-	//UPROPERTY()
-	//FScalarMaterialInput RimSmooth;
-
-	//UPROPERTY()
-	//FColorMaterialInput RampTex;
-
 	UPROPERTY()
 	FScalarMaterialInput Specular;
 

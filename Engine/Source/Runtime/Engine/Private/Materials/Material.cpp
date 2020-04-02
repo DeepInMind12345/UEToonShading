@@ -5160,9 +5160,6 @@ FExpressionInput* UMaterial::GetExpressionInputForProperty(EMaterialProperty InP
 		case MP_OpacityMask:			return &OpacityMask;
 		case MP_BaseColor:				return &BaseColor;
 		case MP_Metallic:				return &Metallic;
-		//case MP_RimStrength:			return &RimStrength;
-		//case MP_RimSmooth:				return &RimSmooth;
-		//case MP_RampTex:				return &RampTex;
 		case MP_Specular:				return &Specular;
 		case MP_Roughness:				return &Roughness;
 		case MP_Normal:					return &Normal;
