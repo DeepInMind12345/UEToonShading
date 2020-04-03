@@ -887,10 +887,6 @@ void Main(
 		}
 	#endif
 
-	#if MATERIAL_SHADINGMODEL_TOON 
-		OutColor.rgb = half3(1, 0, 0.5);
-	#endif
-
 	#if OUTPUT_GAMMA_SPACE
 		OutColor.rgb = sqrt(OutColor.rgb);
 	#endif

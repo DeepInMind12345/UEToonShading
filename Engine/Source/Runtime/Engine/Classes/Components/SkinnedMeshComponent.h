@@ -221,7 +221,7 @@ class ENGINE_API USkinnedMeshComponent : public UMeshComponent
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	TArray<UMaterialInterface*> SecondPassMaterial;
+	UMaterialInterface* SecondPassMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	bool NeedSecondPass = false;

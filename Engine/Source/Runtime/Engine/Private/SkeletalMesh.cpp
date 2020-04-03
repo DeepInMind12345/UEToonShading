@@ -4566,10 +4566,10 @@ void FSkeletalMeshSceneProxy::GetMeshElementsConditionallySelectable(const TArra
 			GetDynamicElementsSection(Views, ViewFamily, VisibilityMap, LODData, LODIndex, SectionIndex, bSectionSelected, SectionElementInfo, bInSelectable, Collector);
 		
 		
-			if (NeedSecondPass && TheSecondPassMaterial.Num() > SectionElementInfo.UseMaterialIndex && TheSecondPassMaterial[SectionElementInfo.UseMaterialIndex])
+			if (NeedSecondPass && TheSecondPassMaterial)
 			{
 				FSectionElementInfo SecondInfo = FSectionElementInfo(SectionElementInfo);
-				SecondInfo.Material = TheSecondPassMaterial[SectionElementInfo.UseMaterialIndex];
+				SecondInfo.Material = TheSecondPassMaterial;
 				GetDynamicElementsSection(Views, ViewFamily, VisibilityMap, LODData, LODIndex, SectionIndex, bSectionSelected, SecondInfo, bInSelectable, Collector);
 			}
 		}

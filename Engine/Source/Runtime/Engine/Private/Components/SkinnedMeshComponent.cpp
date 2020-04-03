@@ -2463,7 +2463,7 @@ void USkinnedMeshComponent::GetUsedMaterials( TArray<UMaterialInterface*>& OutMa
 
 	if (NeedSecondPass)
 	{
-		OutMaterials.Append(SecondPassMaterial);
+		OutMaterials.Add(SecondPassMaterial);
 	}
 }
 

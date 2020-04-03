@@ -319,7 +319,7 @@ public:
 
 	bool NeedSecondPass;
 	UPROPERTY()
-	TArray<UMaterialInterface*> TheSecondPassMaterial;
+	UMaterialInterface* TheSecondPassMaterial;
 
 protected:
 	/** data copied for rendering */
