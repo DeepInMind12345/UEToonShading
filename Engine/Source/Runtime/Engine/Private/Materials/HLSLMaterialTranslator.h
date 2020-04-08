@@ -397,6 +397,7 @@ public:
 		SharedPixelProperties[MP_PixelDepthOffset] = true;
 		SharedPixelProperties[MP_SubsurfaceColor] = true;
 		SharedPixelProperties[MP_ShadingModel] = true;
+		SharedPixelProperties[MP_CustomVector] = true;
 
 		for (int32 Frequency = 0; Frequency < SF_NumFrequencies; ++Frequency)
 		{
@@ -948,6 +949,7 @@ public:
 			Chunk[MP_CustomData0]					= Material->CompilePropertyAndSetMaterialProperty(MP_CustomData0		,this);
 			Chunk[MP_CustomData1]					= Material->CompilePropertyAndSetMaterialProperty(MP_CustomData1		,this);
 			Chunk[MP_AmbientOcclusion]				= Material->CompilePropertyAndSetMaterialProperty(MP_AmbientOcclusion	,this);
+			Chunk[MP_CustomVector] 					= Material->CompilePropertyAndSetMaterialProperty(MP_CustomVector, this);
 
 			if (IsTranslucentBlendMode(BlendMode) || MaterialShadingModels.HasShadingModel(MSM_SingleLayerWater))
 			{

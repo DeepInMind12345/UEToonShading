@@ -463,6 +463,9 @@ public:
 	/** output ambient occlusion to the GBuffer */
 	UPROPERTY()
 	FScalarMaterialInput AmbientOcclusion;
+
+	UPROPERTY()
+	FColorMaterialInput CustomVector;
 #endif
 
 	/**

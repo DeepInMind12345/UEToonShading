@@ -198,4 +198,5 @@ private:
 	FText GetWorldPositionOffsetPinName() const;
 	FText GetSubsurfacePinName() const;
 	FText GetCustomDataPinName( uint32 Index ) const;
+	FText GetCustomVectorPinName() const;
 };

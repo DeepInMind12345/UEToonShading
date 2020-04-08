@@ -3501,7 +3501,7 @@ void UMaterial::Serialize(FArchive& Ar)
 	}
 #endif // #if WITH_EDITOR
 
-	static_assert(MP_MAX == 30, "New material properties must have DoMaterialAttributeReorder called on them to ensure that any future reordering of property pins is correctly applied.");
+	static_assert(MP_MAX == 31, "New material properties must have DoMaterialAttributeReorder called on them to ensure that any future reordering of property pins is correctly applied.");
 
 	if (Ar.UE4Ver() < VER_UE4_MATERIAL_MASKED_BLENDMODE_TIDY)
 	{
@@ -3849,6 +3849,7 @@ void UMaterial::PostLoad()
 	DoMaterialAttributeReorder(&CustomizedUVs[7], UE4Ver);
 	DoMaterialAttributeReorder(&PixelDepthOffset, UE4Ver);
 	DoMaterialAttributeReorder(&ShadingModelFromMaterialExpression, UE4Ver);
+	DoMaterialAttributeReorder(&CustomVector, UE4Ver);
 #endif // WITH_EDITORONLY_DATA
 
 	if (!IsDefaultMaterial())
@@ -5174,6 +5175,7 @@ FExpressionInput* UMaterial::GetExpressionInputForProperty(EMaterialProperty InP
 		case MP_MaterialAttributes:		return &MaterialAttributes;
 		case MP_PixelDepthOffset:		return &PixelDepthOffset;
 		case MP_ShadingModel:			return &ShadingModelFromMaterialExpression;
+		case MP_CustomVector:			return &CustomVector;
 	}
 
 	if (InProperty >= MP_CustomizedUVs0 && InProperty <= MP_CustomizedUVs7)
@@ -5242,6 +5244,7 @@ bool UMaterial::GetAllReferencedExpressions(TArray<UMaterialExpression*>& OutExp
 				MP_WorldPositionOffset,
 				MP_WorldDisplacement,
 				MP_TessellationMultiplier,
+				MP_CustomVector
 			};
 
 
@@ -5726,6 +5729,7 @@ int32 UMaterial::CompilePropertyEx( FMaterialCompiler* Compiler, const FGuid& At
 		case MP_WorldDisplacement:		return WorldDisplacement.CompileWithDefault(Compiler, Property);
 		case MP_PixelDepthOffset:		return PixelDepthOffset.CompileWithDefault(Compiler, Property);
 		case MP_ShadingModel:			return ShadingModelFromMaterialExpression.CompileWithDefault(Compiler, Property);
+		case MP_CustomVector:			return CustomVector.CompileWithDefault(Compiler, Property);
 
 		default:
 			if (Property >= MP_CustomizedUVs0 && Property <= MP_CustomizedUVs7)
@@ -6209,7 +6213,10 @@ static bool IsPropertyActive_Internal(EMaterialProperty InProperty,
 		break;
 	case MP_ShadingModel:
 		Active = bUsesShadingModelFromMaterialExpression;
-                break;
+        break;
+	case MP_CustomVector:
+		Active = ShadingModels.HasAnyShadingModel({ MSM_Toon });
+		break;
 	case MP_MaterialAttributes:
 	default:
 		Active = true;

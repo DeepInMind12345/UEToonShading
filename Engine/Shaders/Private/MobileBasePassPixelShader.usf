@@ -127,6 +127,55 @@ void CalculateToonColor
 }
 
 
+void CalculateToonColor2
+(
+	float Shadow,
+	float3 N, 
+	float3 V, 
+	float3 L, 
+	float3 LightColor, 
+	float3 BaseColor,
+	float3 SSS,
+	float SpecStrength,
+	float ShadowThreshold,
+	float SpecularMask,
+	float SpecularMulti,
+
+	float ShadowSmooth,
+	float ShadowRange,
+	float SpecularGloss,
+	float SpecularRange,
+	inout float3 Color
+	)
+{
+    //half3 IlmTex = half3(SpecStrength, ShadowThreshold, SpecularSize);//TODO:美术制作贴图，R控制高光强度  B控制高光范围 G控制漫反射的阴影阈值
+	
+	
+	//Smoothstep实现方式
+	half3 ShadowColor = SSS;
+    half RawNoL = dot(N, L);
+    half HalfNoL = RawNoL * 0.5 + 0.5;
+    half Threshold = (HalfNoL + ShadowThreshold) * 0.5;
+    half Ramp = saturate(ShadowRange - Threshold);
+    Ramp = smoothstep(0, ShadowSmooth, Ramp);
+    half3 Diffuse = lerp(ShadowColor, BaseColor, Ramp);
+    Diffuse *= BaseColor;
+
+    half3 Specular = 0;
+	half3  SpecularColor = half3(1, 1, 1);
+    float NoH = max(0, dot(N, normalize(V + L)));
+    half SpecularSize = pow(NoH, SpecularGloss);
+	if (SpecularSize >= 1- SpecularMask * SpecularRange)
+    {
+        Specular = SpecularMulti * (SpecStrength) * SpecularColor;
+    }
+	
+
+    Color.rgb = (Diffuse + Specular) * LightColor;
+}
+
+
+
 half PhongApprox( half Roughness, half RoL )
 {
 	half a = Roughness * Roughness;			// 1 mul
@@ -425,6 +474,8 @@ void Main(
 #endif
 	)
 {
+
+
 #if MOBILE_MULTI_VIEW
 	ResolvedView = ResolveView(uint(BasePassInterpolants.MultiViewId));
 #else
@@ -479,6 +530,7 @@ void Main(
 	half3 BaseColor = GetMaterialBaseColor(PixelMaterialInputs);
 	half  Metallic = GetMaterialMetallic(PixelMaterialInputs);
 	half  Specular = GetMaterialSpecular(PixelMaterialInputs);
+	half3 ParamsCollection = PixelMaterialInputs.CustomVector;
 
 #if NONMETAL
 	half3 DiffuseColor = BaseColor;
@@ -658,6 +710,8 @@ void Main(
 		float3 H = normalize(float3(MaterialParameters.CameraVector) + float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz));
 		float NoH = max(0,dot(MaterialParameters.WorldNormal, H));
 
+
+
 		#if FULLY_ROUGH && !MATERIAL_SHADINGMODEL_TOON
 			Color += (Shadow * NoL) * MobileDirectionalLight.DirectionalLightColor.rgb * DiffuseColor;
 		#elif !MATERIAL_SHADINGMODEL_TOON
@@ -677,7 +731,7 @@ void Main(
 			#endif
 			Color += SpecularIBL * SpecularColor;
 		#elif MATERIAL_SHADINGMODEL_TOON
-			CalculateToonColor(
+			CalculateToonColor2(
 				Shadow,
 				MaterialParameters.WorldNormal,
 				MaterialParameters.CameraVector,
@@ -689,6 +743,10 @@ void Main(
 				GetMaterialSpecular(PixelMaterialInputs),
 				GetMaterialRoughness(PixelMaterialInputs),
 				GetMaterialCustomData0(MaterialParameters),
+				ParamsCollection.r,
+				ParamsCollection.g,
+				ParamsCollection.b,
+				0.75,
 				Color
 			);
 		#endif
@@ -765,18 +823,22 @@ void Main(
 				#elif !MATERIAL_SHADINGMODEL_TOON
 					Color += (Attenuation * PointNoL) * LightColorAndFalloffExponent[i].rgb * DiffuseColor;
 				#elif MATERIAL_SHADINGMODEL_TOON
-					CalculateToonColor(
+					CalculateToonColor2(
 						Shadow,
 						MaterialParameters.WorldNormal,
 						MaterialParameters.CameraVector,
 						float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz),
-						LightColorAndFalloffExponent[i].rgb * Attenuation,
+						MobileDirectionalLight.DirectionalLightColor.rgb,
 						GetMaterialBaseColor(PixelMaterialInputs),
 						GetMaterialSubsurfaceData(PixelMaterialInputs).rgb,
 						GetMaterialMetallic(PixelMaterialInputs),
 						GetMaterialSpecular(PixelMaterialInputs),
 						GetMaterialRoughness(PixelMaterialInputs),
 						GetMaterialCustomData0(MaterialParameters),
+						ParamsCollection.r,
+						ParamsCollection.g,
+						ParamsCollection.b,
+						0.75,
 						Color
 					);
 				#endif
@@ -826,6 +888,7 @@ void Main(
 #if !MATERIAL_SHADINGMODEL_UNLIT && MOBILE_EMULATION
 	Color = lerp(Color, DiffuseColor + SpecularColor, ResolvedView.UnlitViewmodeMask);
 #endif
+
 
 	// On mobile, water (an opaque material) is rendered as trnaslucent with forced premultiplied alpha blending (see MobileBasePass::SetTranslucentRenderState)
 	#if MATERIALBLENDING_ALPHACOMPOSITE || MATERIAL_SHADINGMODEL_SINGLELAYERWATER
@@ -887,6 +950,15 @@ void Main(
 		}
 	#endif
 
+//#if MATERIAL_SHADINGMODEL_UNLIT && CARTOON_OUTERLINE
+//	OutColor.rgb *= CustomVector;
+//#endif
+	
+#if MATERIAL_SHADINGMODEL_TOON
+	//OutColor.rgb = PixelMaterialInputs.CustomVector;
+#endif
+	
+	
 	#if OUTPUT_GAMMA_SPACE
 		OutColor.rgb = sqrt(OutColor.rgb);
 	#endif

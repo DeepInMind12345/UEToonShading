@@ -180,6 +180,7 @@ enum EMaterialProperty
 	//^^^ New material properties go above here ^^^^
 	MP_MaterialAttributes UMETA(Hidden),
 	MP_CustomOutput UMETA(Hidden),
+	MP_CustomVector UMETA(Hidden),
 	MP_MAX UMETA(DisplayName = "None"),
 };
 

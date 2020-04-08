@@ -66,6 +66,7 @@ void UMaterialGraph::RebuildGraph()
 		//^^^ New material properties go above here. ^^^^
 		MaterialInputs.Add(FMaterialInputInfo(LOCTEXT("MaterialAttributes", "Material Attributes"), MP_MaterialAttributes, LOCTEXT( "MaterialAttributesToolTip", "Material Attributes" ) ));
 
+		MaterialInputs.Add( FMaterialInputInfo(GetCustomVectorPinName(), MP_CustomVector, GetCustomVectorPinName() ) );
 		// Add Root Node
 		FGraphNodeCreator<UMaterialGraphNode_Root> NodeCreator(*this);
 		RootNode = NodeCreator.CreateNode();
@@ -599,6 +600,12 @@ FText UMaterialGraph::GetCustomDataPinName( uint32 Index ) const
 	}
 
 	return LOCTEXT("CustomData", "Custom Data");
+}
+
+FText UMaterialGraph::GetCustomVectorPinName() const
+{
+	TArray<TKeyValuePair<EMaterialShadingModel, FString>> CustomPinNames({ {MSM_Toon, "Custom Vector"}});
+	return FText::FromString(GetPinNameFromShadingModelField(Material->GetShadingModels(), CustomPinNames, "Custom Vector"));
 }
 
 #undef LOCTEXT_NAMESPACE
