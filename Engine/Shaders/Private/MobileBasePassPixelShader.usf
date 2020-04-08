@@ -88,94 +88,6 @@ float4 SpotLightDirectionAndSpecularScale[MAX_DYNAMIC_POINT_LIGHTS];
 	#endif
 #endif
 
-
-void CalculateToonColor
-(
-	float Shadow,
-	float3 N, 
-	float3 V, 
-	float3 L, 
-	float3 LightColor, 
-	float3 BaseColor,
-	float3 SSS,
-	float SpecStrength,
-	float ShadowThreshold,
-	float SpecularSize,
-	float InnerLine,
-	inout float3 Color
-)
-{
-    float3 BrightColor = BaseColor;
-    float3 ShadowColor = BrightColor * SSS;
-    
-    if (InnerLine < 0.8f)
-    {
-        InnerLine *= 0.5f;
-    }
-    float3 InnerLineColor = float3(InnerLine, InnerLine, InnerLine);
-
-    float NdotL = dot(N, L) * Shadow;
-    float NdotH = dot(N, normalize(V + L));
-
-    ShadowThreshold = step(ShadowThreshold, NdotL);
-
-    float3 ToonDiffuse = InnerLineColor * LightColor * lerp(ShadowColor, BrightColor, ShadowThreshold);
-    float3 ToonSpecular = 5.0f * LightColor * BrightColor * ShadowThreshold * InnerLineColor * step(0.3f, SpecularSize * pow(NdotH, SpecStrength));
-
-    Color += ToonDiffuse + ToonSpecular;
-
-}
-
-
-void CalculateToonColor2
-(
-	float Shadow,
-	float3 N, 
-	float3 V, 
-	float3 L, 
-	float3 LightColor, 
-	float3 BaseColor,
-	float3 SSS,
-	float SpecStrength,
-	float ShadowThreshold,
-	float SpecularMask,
-	float SpecularMulti,
-
-	float ShadowSmooth,
-	float ShadowRange,
-	float SpecularGloss,
-	float SpecularRange,
-	inout float3 Color
-	)
-{
-    //half3 IlmTex = half3(SpecStrength, ShadowThreshold, SpecularSize);//TODO:美术制作贴图，R控制高光强度  B控制高光范围 G控制漫反射的阴影阈值
-	
-	
-	//Smoothstep实现方式
-	half3 ShadowColor = SSS;
-    half RawNoL = dot(N, L);
-    half HalfNoL = RawNoL * 0.5 + 0.5;
-    half Threshold = (HalfNoL + ShadowThreshold) * 0.5;
-    half Ramp = saturate(ShadowRange - Threshold);
-    Ramp = smoothstep(0, ShadowSmooth, Ramp);
-    half3 Diffuse = lerp(ShadowColor, BaseColor, Ramp);
-    Diffuse *= BaseColor;
-
-    half3 Specular = 0;
-	half3  SpecularColor = half3(1, 1, 1);
-    float NoH = max(0, dot(N, normalize(V + L)));
-    half SpecularSize = pow(NoH, SpecularGloss);
-	if (SpecularSize >= 1- SpecularMask * SpecularRange)
-    {
-        Specular = SpecularMulti * (SpecStrength) * SpecularColor;
-    }
-	
-
-    Color.rgb = (Diffuse + Specular) * LightColor;
-}
-
-
-
 half PhongApprox( half Roughness, half RoL )
 {
 	half a = Roughness * Roughness;			// 1 mul
@@ -463,6 +375,29 @@ void ApplyPixelDepthOffsetForMobileBasePass(inout FMaterialPixelParameters Mater
     float PixelDepthOffset = ApplyPixelDepthOffsetToMaterialParameters(MaterialParameters, PixelMaterialInputs, OutDepth);
 }
 
+
+
+//half3 GetSkinLighting(FPixelMaterialInputs PixelMaterialInputs)
+//{
+//    half VoL = saturate(dot(LightParm.V, -LightParm.DL));
+//    half Opacity = GetMaterialOpacity(PixelMaterialInputs);
+
+//    float3 SkinBXDF = Texture2DSampleLevel(Material.Texture2D_1, Material.Texture2D_1Sampler, float2(saturate(ShadowMask * MaterialAO * 0.5 + 0.5), 1 - Opacity), 0).rgb;
+
+//    half3 Diffuse = BaseColor * SkinBXDF * DirectLightColor * ShadowMask;
+
+//    half3 ShadowColor = Texture2DSampleLevel(Material.Texture2D_1, Material.Texture2D_1Sampler, float2(Shadow, 1 - Opacity), 0).rgb;
+
+//    half3 SubsurfaceScater = saturate(dot(N, V - L)) * (1 - Opacity) * SubsurfaceData.rgb * SkinBXDF * 5 * DirectLightColor * ShadowColor;
+//    half3 Tranmission = pow((1 - NoV), 8) * SubsurfaceData.rgb * 0.3 * (1 - Opacity) * DirectLightColor * NoL;
+
+//    half3 Specular = SpecularColor * CalcSpecular(Roughness, RoL, NoH, H, N) * DirectLightColor * ShadowMask;
+
+////ShadowMask * DirectLightColor * (Diffuse + ) + SubsurfaceColor + Tranmission;
+//    Output = Diffuse + Specular + SubsurfaceScater;
+//}
+
+
 void Main( 
 	FVertexFactoryInterpolantsVSToPS Interpolants
 	, FMobileBasePassInterpolantsVSToPS BasePassInterpolants
@@ -474,8 +409,6 @@ void Main(
 #endif
 	)
 {
-
-
 #if MOBILE_MULTI_VIEW
 	ResolvedView = ResolveView(uint(BasePassInterpolants.MultiViewId));
 #else
@@ -530,7 +463,6 @@ void Main(
 	half3 BaseColor = GetMaterialBaseColor(PixelMaterialInputs);
 	half  Metallic = GetMaterialMetallic(PixelMaterialInputs);
 	half  Specular = GetMaterialSpecular(PixelMaterialInputs);
-	half3 ParamsCollection = PixelMaterialInputs.CustomVector;
 
 #if NONMETAL
 	half3 DiffuseColor = BaseColor;
@@ -540,13 +472,6 @@ void Main(
 	half3 DiffuseColor = BaseColor - BaseColor * Metallic;	// 1 mad
 	half3 SpecularColor = (DielectricSpecular - DielectricSpecular * Metallic) + BaseColor * Metallic;	// 2 mad
 #endif
-
-
-#if MATERIAL_SHADINGMODEL_TOON
-	BaseColor = half3(0.0, 0.0, 0.0);
-	SpecularColor = half3(0.0, 0.0, 0.0);
-#endif
-
 
 	half Roughness = GetMaterialRoughness(PixelMaterialInputs);
 
@@ -564,7 +489,6 @@ void Main(
 	SpecularColor = EnvBRDFApprox( SpecularColor, Roughness, NoV );
 #endif
 #endif
-
 
 #if MOBILE_EMULATION
 	{
@@ -705,16 +629,81 @@ void Main(
 		}
 		#endif /* DIRECTIONAL_LIGHT_CSM */
 
+	
+
+
 		float NoL = max(0, dot(float3(MaterialParameters.WorldNormal), float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz)));
 		float RoL = max(0, dot(float3(MaterialParameters.ReflectionVector), float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz)));
 		float3 H = normalize(float3(MaterialParameters.CameraVector) + float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz));
 		float NoH = max(0,dot(MaterialParameters.WorldNormal, H));
 
+	
+ //   half3 IlmTex = half3(0.5, 0.5, 0.5);//TODO:����������ͼ��R���Ƹ߹�ǿ��  B���Ƹ߹ⷶΧ G�������������Ӱ��ֵ
+	
+	
+	////Smoothstepʵ�ַ�ʽ
+ //   static const half _ShadowSmooth = 0.3;
+ //   static const half _ShadowRange = 0.45;
+ //   static const half _ShadowColor = half3(0.05, 0.05, 0.05);
+ //   static const half4 _MainColor = half4(1.0, 1.0, 1.0, 1.0);
+	
+	//#define LightBright 0.3
+	
+ //   half RawNoL = dot(float3(MaterialParameters.WorldNormal), float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz));
+ //   half HalfNoL = RawNoL * 0.5 + 0.5;
+ //   half Threshold = (HalfNoL + IlmTex.g) * 0.5;
+ //   half Ramp = saturate(_ShadowRange - Threshold);
+ //   Ramp = smoothstep(0, _ShadowSmooth, Ramp);
+ //   half3 Diffuse = lerp(_ShadowColor, _MainColor, Ramp);
+ //   Diffuse *= BaseColor;
+	
+	////Rampʵ�ַ�ʽ TODO:Ѱ�Ҵ�C++������ͼ���ݵ�shader�ķ�������Ҫ��shader����취����Ramp��ͼ����
+	
+ //   static const half _SpecularGloss;
+ //   static const half _SpecularRange;
+ //   static const half _SpecularMulti;
+ //   half3 ToonSpecular;
+ //   half SpecularSize = pow(NoH, _SpecularGloss);
+ //   half SpecularMask = IlmTex.b;
+	//if (SpecularSize >= 1- SpecularMask * _SpecularRange)
+ //   {
+ //       ToonSpecular = _SpecularMulti * (IlmTex.r) * SpecularColor;
+ //   }
+	
 
+//    OutColor.rgb = (Diffuse + Specular) * MobileDirectionalLight.DirectionalLightColor.rgb;
 
-		#if FULLY_ROUGH && !MATERIAL_SHADINGMODEL_TOON
+// #if BRIGHTNESS 
+//	 OutColor.rgb = half3(1, LightB, 0);
+// #endif
+ 
+////	OutColor = half3(BRIGHTNESS, 0, 0);
+//   OutColor.a = 1.0;
+//   return;
+ 
+	#if MATERIAL_SHADINGMODEL_TOON
+		half3 IlmTex = half3(0.5, 0.5, 0.5);//TODO:����������ͼ��R���Ƹ߹�ǿ��  B���Ƹ߹ⷶΧ G�������������Ӱ��ֵ
+			
+		//Smoothstepʵ�ַ�ʽ
+		half _ShadowSmooth = PixelMaterialInputs.CustomVector.x;
+		half _ShadowRange = PixelMaterialInputs.CustomVector.y;
+
+		half RawNoL = dot(float3(MaterialParameters.WorldNormal), float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz));
+		half HalfNoL = RawNoL * 0.5 + 0.5;
+	//	half Threshold = (HalfNoL + IlmTex.g) * 0.5;
+	//	half Ramp = saturate(_ShadowRange - Threshold);
+
+   		half Ramp = smoothstep(0, _ShadowSmooth, HalfNoL - _ShadowRange);
+
+		//Ramp = smoothstep(0, _ShadowSmooth, Ramp);
+
+		NoL = Ramp;
+	#endif
+
+	
+		#if FULLY_ROUGH
 			Color += (Shadow * NoL) * MobileDirectionalLight.DirectionalLightColor.rgb * DiffuseColor;
-		#elif !MATERIAL_SHADINGMODEL_TOON
+		#else
 			// MobileDirectionalLight.DirectionalLightDistanceFadeMADAndSpecularScale.z saves SpecularScale for direction light.
 			Color += (Shadow * NoL) * MobileDirectionalLight.DirectionalLightColor.rgb * (DiffuseColor + SpecularColor * MobileDirectionalLight.DirectionalLightDistanceFadeMADAndSpecularScale.z * CalcSpecular(Roughness, RoL, NoH, H, MaterialParameters.WorldNormal));
 			// Environment map has been prenormalized, scale by lightmap luminance
@@ -730,25 +719,6 @@ void Main(
 				}
 			#endif
 			Color += SpecularIBL * SpecularColor;
-		#elif MATERIAL_SHADINGMODEL_TOON
-			CalculateToonColor2(
-				Shadow,
-				MaterialParameters.WorldNormal,
-				MaterialParameters.CameraVector,
-				float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz),
-				MobileDirectionalLight.DirectionalLightColor.rgb,
-				GetMaterialBaseColor(PixelMaterialInputs),
-				GetMaterialSubsurfaceData(PixelMaterialInputs).rgb,
-				GetMaterialMetallic(PixelMaterialInputs),
-				GetMaterialSpecular(PixelMaterialInputs),
-				GetMaterialRoughness(PixelMaterialInputs),
-				GetMaterialCustomData0(MaterialParameters),
-				ParamsCollection.r,
-				ParamsCollection.g,
-				ParamsCollection.b,
-				0.75,
-				Color
-			);
 		#endif
 
 		#if ENABLE_SKY_LIGHT
@@ -818,31 +788,11 @@ void Main(
 				}
 				#endif
 
-				#if !FULLY_ROUGH && !MATERIAL_SHADINGMODEL_TOON
+				#if !FULLY_ROUGH
 					Color += min(65000.0, (Attenuation * PointNoL) * LightColorAndFalloffExponent[i].rgb * (1.0/PI) * (DiffuseColor + SpecularColor * SpotLightDirectionAndSpecularScale[i].w * CalcSpecular(Roughness, PointRoL, PointNoH, H, MaterialParameters.WorldNormal)));
-				#elif !MATERIAL_SHADINGMODEL_TOON
+				#else
 					Color += (Attenuation * PointNoL) * LightColorAndFalloffExponent[i].rgb * DiffuseColor;
-				#elif MATERIAL_SHADINGMODEL_TOON
-					CalculateToonColor2(
-						Shadow,
-						MaterialParameters.WorldNormal,
-						MaterialParameters.CameraVector,
-						float3(MobileDirectionalLight.DirectionalLightDirectionAndShadowTransition.xyz),
-						MobileDirectionalLight.DirectionalLightColor.rgb,
-						GetMaterialBaseColor(PixelMaterialInputs),
-						GetMaterialSubsurfaceData(PixelMaterialInputs).rgb,
-						GetMaterialMetallic(PixelMaterialInputs),
-						GetMaterialSpecular(PixelMaterialInputs),
-						GetMaterialRoughness(PixelMaterialInputs),
-						GetMaterialCustomData0(MaterialParameters),
-						ParamsCollection.r,
-						ParamsCollection.g,
-						ParamsCollection.b,
-						0.75,
-						Color
-					);
 				#endif
-
 			#if VARIABLE_NUM_DYNAMIC_POINT_LIGHTS && ( WEBGL || ES2_PROFILE || VULKAN_PROFILE )
 				}
 			#endif
@@ -852,6 +802,8 @@ void Main(
 	#endif /* !MATERIAL_SHADINGMODEL_UNLIT */
 		 
 	half3 Emissive = GetMaterialEmissive(PixelMaterialInputs);
+
+	Color += Emissive;
 
 #if MATERIAL_SHADINGMODEL_SINGLELAYERWATER
 	{
@@ -888,7 +840,6 @@ void Main(
 #if !MATERIAL_SHADINGMODEL_UNLIT && MOBILE_EMULATION
 	Color = lerp(Color, DiffuseColor + SpecularColor, ResolvedView.UnlitViewmodeMask);
 #endif
-
 
 	// On mobile, water (an opaque material) is rendered as trnaslucent with forced premultiplied alpha blending (see MobileBasePass::SetTranslucentRenderState)
 	#if MATERIALBLENDING_ALPHACOMPOSITE || MATERIAL_SHADINGMODEL_SINGLELAYERWATER
@@ -949,15 +900,10 @@ void Main(
 			OutColor = half4(HdrMosaic(OutColor.rgb,  SvPosition.xy), OutColor.a);
 		}
 	#endif
+	
+	#if !BRIGHTNESS
 
-//#if MATERIAL_SHADINGMODEL_UNLIT && CARTOON_OUTERLINE
-//	OutColor.rgb *= CustomVector;
-//#endif
-	
-#if MATERIAL_SHADINGMODEL_TOON
-	//OutColor.rgb = PixelMaterialInputs.CustomVector;
-#endif
-	
+	#endif
 	
 	#if OUTPUT_GAMMA_SPACE
 		OutColor.rgb = sqrt(OutColor.rgb);
